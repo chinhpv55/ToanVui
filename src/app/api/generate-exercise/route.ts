@@ -34,19 +34,25 @@ export async function POST(request: NextRequest) {
     }
 
     const claude = getClaudeClient();
-    const exercises: GeneratedExercise[] = [];
-    const usedAnswers: string[] = [];
     const target = Math.min(count, 5);
 
-    // Generate SEQUENTIALLY so each call knows what was already generated
-    for (let i = 0; i < target; i++) {
+    // Each slot gets a DIFFERENT variation hint → forces variety even in parallel
+    const SLOT_HINTS = [
+      "Dùng số nhỏ (1–3) hoặc bài toán đơn giản nhất của chủ đề này.",
+      "Dùng số vừa (4–6) hoặc độ khó trung bình của chủ đề này.",
+      "Dùng số lớn (7–9) hoặc bài khó hơn của chủ đề này.",
+      "Đổi cách hỏi: tìm số còn thiếu, điền vào ô trống, hoặc hỏi ngược.",
+      "Dùng bài toán có lời văn thực tế (đồ vật, con vật, học sinh...) liên quan chủ đề.",
+    ];
+
+    // Fire all calls in PARALLEL — each with a different slot hint to guarantee variety
+    const promises = Array.from({ length: target }, async (_, i) => {
       const userPrompt = buildExercisePrompt(
         topic.ai_prompt_template,
         difficulty,
         question_type,
-        usedAnswers
+        SLOT_HINTS[i % SLOT_HINTS.length]
       );
-
       try {
         const message = await withTimeout(
           claude.messages.create({
@@ -55,33 +61,32 @@ export async function POST(request: NextRequest) {
             system: SYSTEM_PROMPT,
             messages: [{ role: "user", content: userPrompt }],
           }),
-          15000
+          12000
         );
-
         const text =
           message.content[0].type === "text" ? message.content[0].text : "";
-        const parsed = parseExerciseResponse(text);
-
-        if (parsed) {
-          // Dedup: skip if same answer already used (catches 7×4=28 repeated)
-          const normalizedAnswer = parsed.answer.trim().toLowerCase();
-          const normalizedQuestion = normalizeQuestion(parsed.question);
-          const isDupAnswer = usedAnswers.includes(normalizedAnswer);
-          const isDupQuestion = exercises.some(
-            (e) => normalizeQuestion(e.question) === normalizedQuestion
-          );
-
-          if (!isDupAnswer && !isDupQuestion) {
-            exercises.push(parsed);
-            usedAnswers.push(normalizedAnswer);
-          } else {
-            console.log("[generate-exercise] Skipped duplicate:", parsed.question);
-          }
-        }
+        return parseExerciseResponse(text);
       } catch (e: unknown) {
-        const errMsg = e instanceof Error ? e.message : String(e);
-        console.error(`Claude call ${i + 1} failed:`, errMsg);
+        console.error(`Claude slot ${i + 1} failed:`, e instanceof Error ? e.message : e);
+        return null;
       }
+    });
+
+    const results = await Promise.all(promises);
+
+    // Dedup by normalized question AND answer
+    const exercises: GeneratedExercise[] = [];
+    const seenQuestions = new Set<string>();
+    const seenAnswers = new Set<string>();
+
+    for (const r of results) {
+      if (!r) continue;
+      const nq = normalizeQuestion(r.question);
+      const na = r.answer.trim().toLowerCase();
+      if (seenQuestions.has(nq) || seenAnswers.has(na)) continue;
+      seenQuestions.add(nq);
+      seenAnswers.add(na);
+      exercises.push(r);
     }
 
     // Fallback if everything failed

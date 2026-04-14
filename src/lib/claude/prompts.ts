@@ -19,18 +19,17 @@ export function buildExercisePrompt(
   template: string,
   difficulty: DifficultyLevel,
   questionType: QuestionType,
-  usedAnswers: string[] = []
+  slotHint: string = ""
 ): string {
   const base = template
     .replace(/\{difficulty\}/g, difficulty)
     .replace(/\{question_type\}/g, questionType);
 
-  if (usedAnswers.length === 0) return base;
+  if (!slotHint) return base;
 
   return `${base}
 
-Đã dùng trong buổi này (KHÔNG được lặp lại): ${usedAnswers.join(", ")}
-Hãy chọn số và phép tính KHÁC HOÀN TOÀN.`;
+YÊU CẦU ĐẶC BIỆT cho câu này: ${slotHint}`;
 }
 
 export function buildExplanationPrompt(
