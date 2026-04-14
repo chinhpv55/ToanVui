@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useStudentStore } from "@/stores/studentStore";
 import { useSessionStore } from "@/stores/sessionStore";
@@ -186,6 +186,7 @@ function MascotCard({ streakDays, practicedToday, dailyStars }: {
 // ─────────────────────────────────────────────────────────
 export default function HomePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { student } = useStudentStore();
   const { startSession } = useSessionStore();
   const [topics, setTopics] = useState<CurriculumTopic[]>([]);
@@ -222,6 +223,18 @@ export default function HomePage() {
     }
     load();
   }, [supabase, student]);
+
+  // Scroll to topic node after navigating back from "Luyện tiếp"
+  useEffect(() => {
+    const scrollToId = searchParams.get("scrollTo");
+    if (!scrollToId || topics.length === 0) return;
+    const el = document.getElementById(`topic-${scrollToId}`);
+    if (el) {
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [searchParams, topics]);
 
   async function startPractice(topic: CurriculumTopic, e?: React.MouseEvent | { clientX: number; clientY: number }) {
     const topicProgress = progress[topic.id];
@@ -264,8 +277,18 @@ export default function HomePage() {
   }
 
   const masteredCount = flatTopics.filter((t) => progress[t.id]?.mastery_level === "mastered").length;
+  const startedCount = flatTopics.filter((t) => progress[t.id] && progress[t.id].mastery_level !== "not_started").length;
   const totalCount = flatTopics.length;
-  const overallPct = totalCount > 0 ? Math.round((masteredCount / totalCount) * 100) : 0;
+  // Weighted: mastered=1, practicing=0.67, learning=0.33
+  const overallPct = totalCount > 0 ? Math.round(
+    flatTopics.reduce((sum, t) => {
+      const lvl = progress[t.id]?.mastery_level;
+      if (lvl === "mastered") return sum + 1;
+      if (lvl === "practicing") return sum + 0.67;
+      if (lvl === "learning") return sum + 0.33;
+      return sum;
+    }, 0) / totalCount * 100
+  ) : 0;
 
   const weakTopics = flatTopics.filter((t) => progress[t.id]?.weak_flag).slice(0, 3);
 
@@ -316,7 +339,7 @@ export default function HomePage() {
         </div>
         <div className="flex justify-between mt-1.5 text-xs text-gray-400">
           <span>🌱 Bắt đầu</span>
-          <span>{masteredCount}/{totalCount} bài</span>
+          <span>{startedCount}/{totalCount} bài</span>
           <span>🏆 Hoàn thành</span>
         </div>
       </motion.div>
@@ -390,7 +413,7 @@ export default function HomePage() {
                   "text-yellow-300";
 
                 return (
-                  <div key={topic.id}>
+                  <div key={topic.id} id={`topic-${topic.id}`}>
                     <motion.div
                       className={`flex ${positionClass(pos)}`}
                       initial={{ opacity: 0, scale: 0.7 }}

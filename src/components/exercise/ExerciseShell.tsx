@@ -168,7 +168,7 @@ export default function ExerciseShell() {
           if (tid && tname) {
             startSession(tid, tname, diff);
           }
-          router.push("/home");
+          router.push(tid ? `/home?scrollTo=${tid}` : "/home");
         }}
       />
     );
