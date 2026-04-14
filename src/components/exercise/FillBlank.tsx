@@ -3,6 +3,12 @@
 import { useState, useRef, useEffect } from "react";
 import { GeneratedExercise } from "@/types/exercise";
 
+// Returns true if the expected answer is purely numeric (digits, spaces, commas, dots, +/-).
+// Text answers like "hình vuông", "chữ nhật" will return false → show full keyboard.
+function isNumericAnswer(answer: string): boolean {
+  return /^[\d\s.,+\-×÷=]+$/.test(answer.trim());
+}
+
 interface FillBlankProps {
   exercise: GeneratedExercise;
   onSubmit: (answer: string) => void;
@@ -55,13 +61,15 @@ export default function FillBlank({
       <input
         ref={inputRef}
         type="text"
-        inputMode="numeric"
+        inputMode={isNumericAnswer(exercise.answer) ? "numeric" : "text"}
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}
         disabled={disabled}
-        className="w-40 h-16 text-3xl font-bold text-center border-3 border-primary-300 rounded-2xl focus:border-primary-500 focus:ring-4 focus:ring-primary-200 outline-none bg-white disabled:bg-gray-100"
+        className="w-48 h-16 text-2xl font-bold text-center border-3 border-primary-300 rounded-2xl focus:border-primary-500 focus:ring-4 focus:ring-primary-200 outline-none bg-white disabled:bg-gray-100"
         placeholder="?"
         autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
       />
 
       <button

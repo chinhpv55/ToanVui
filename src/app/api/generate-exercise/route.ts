@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     // Generate exercises with 15s timeout per call
     const errors: string[] = [];
-    const promises = Array.from({ length: Math.min(count, 3) }, async () => {
+    const promises = Array.from({ length: Math.min(count, 5) }, async () => {
       try {
         console.log("[generate-exercise] Calling Claude API...");
         const message = await withTimeout(

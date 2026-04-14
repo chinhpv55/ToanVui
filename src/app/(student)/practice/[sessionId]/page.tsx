@@ -17,8 +17,8 @@ export default function PracticeSessionPage() {
       setLoading(true);
       const questionTypes = ["fill_blank", "multiple_choice"] as const;
 
+      // Fetch first 5 questions to show immediately
       try {
-        // Fetch 3 questions (not 5) for faster initial load
         const res = await fetch("/api/generate-exercise", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -27,7 +27,7 @@ export default function PracticeSessionPage() {
             difficulty: useSessionStore.getState().difficulty,
             question_type:
               questionTypes[Math.floor(Math.random() * questionTypes.length)],
-            count: 3,
+            count: 5,
           }),
         });
 
@@ -43,7 +43,7 @@ export default function PracticeSessionPage() {
         setLoading(false);
       }
 
-      // Prefetch 2 more in background
+      // Prefetch 5 more in background → 10 total
       try {
         const res2 = await fetch("/api/generate-exercise", {
           method: "POST",
@@ -53,7 +53,7 @@ export default function PracticeSessionPage() {
             difficulty: useSessionStore.getState().difficulty,
             question_type:
               questionTypes[Math.floor(Math.random() * questionTypes.length)],
-            count: 2,
+            count: 5,
           }),
         });
         const data2 = await res2.json();
