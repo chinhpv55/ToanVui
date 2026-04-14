@@ -6,7 +6,7 @@ import { useStudentStore } from "@/stores/studentStore";
 import StarCounter from "@/components/ui/StarCounter";
 import StreakBadge from "@/components/ui/StreakBadge";
 import Link from "next/link";
-import { preloadSounds, setMuted, isMuted } from "@/lib/sound";
+import { preloadSounds, setMuted } from "@/lib/sound";
 
 export default function StudentLayout({
   children,
