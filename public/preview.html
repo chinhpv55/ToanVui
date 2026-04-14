@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vui Học Toán — Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#f0f4ff;font-family:'Nunito',sans-serif;padding:40px 20px;min-height:100vh}
+h1.page-title{text-align:center;font-size:28px;font-weight:900;color:#1e3a8a;margin-bottom:8px}
+p.page-sub{text-align:center;color:#64748b;font-size:14px;margin-bottom:40px}
+
+.screens{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+
+/* Phone shell */
+.phone{width:240px;background:#1a1a2e;border-radius:36px;padding:10px;box-shadow:0 24px 60px rgba(0,0,0,0.28);flex-shrink:0}
+.phone-inner{background:#fff;border-radius:28px;overflow:hidden;height:500px;position:relative;display:flex;flex-direction:column}
+.screen-label{text-align:center;color:#94a3b8;font-size:11px;font-weight:700;margin-top:10px;letter-spacing:.05em;text-transform:uppercase}
+
+/* Status bar */
+.statusbar{background:#fff;padding:8px 16px 4px;display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#334155;flex-shrink:0}
+
+/* Shared top bar */
+.topbar{background:rgba(255,255,255,.9);border-bottom:1px solid #e0e9ff;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-logo{font-size:13px;font-weight:900;color:#3b82f6;display:flex;align-items:center;gap:4px}
+.topbar-right{display:flex;align-items:center;gap:6px}
+.badge{background:#fef3c7;border:1px solid #fcd34d;border-radius:20px;padding:2px 7px;font-size:10px;font-weight:800;color:#b45309}
+.badge-blue{background:#dbeafe;border:1px solid #93c5fd;color:#1d4ed8}
+
+/* Scrollable content */
+.content{flex:1;overflow:hidden;padding:10px 10px 0}
+
+/* ── Screen 1: Home ─────────────────────────── */
+.mascot-card{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:16px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.mascot-emoji{font-size:28px;animation:bob 2s infinite ease-in-out}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.mascot-text{flex:1}
+.mascot-text p{font-size:10px;font-weight:700;color:#1e40af;line-height:1.4}
+.goal-ring{width:40px;height:40px;flex-shrink:0}
+.mini-bar{margin-top:5px;background:#fff;height:5px;border-radius:4px;overflow:hidden}
+.mini-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#3b82f6,#2563eb)}
+
+.progress-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.prog-row{display:flex;justify-content:space-between;font-size:10px;font-weight:800;color:#334155;margin-bottom:4px}
+.prog-bar{background:#f1f5f9;height:8px;border-radius:6px;overflow:hidden}
+.prog-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#60a5fa,#3b82f6)}
+.prog-labels{display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;margin-top:3px}
+
+.rnd-btn{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-weight:900;font-size:12px;border-radius:14px;padding:10px;text-align:center;margin-bottom:10px;box-shadow:0 4px 12px rgba(59,130,246,.35)}
+
+.chapter-banner{background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:14px;padding:8px 12px;color:#fff;margin-bottom:8px}
+.chapter-banner small{font-size:9px;opacity:.75;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chapter-banner p{font-size:11px;font-weight:900}
+
+.path{display:flex;flex-direction:column;align-items:center;gap:0}
+.path-row{display:flex;align-items:center;margin-bottom:2px}
+.path-row.left{align-self:flex-start;margin-left:12px}
+.path-row.center{align-self:center}
+.path-row.right{align-self:flex-end;margin-right:12px}
+.node{width:48px;height:48px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid;font-size:18px;position:relative;box-shadow:0 4px 10px rgba(0,0,0,.15)}
+.node-label{font-size:8px;font-weight:800;color:#374151;text-align:center;max-width:56px;margin-top:3px;line-height:1.2}
+.node-stars{font-size:8px;color:#f59e0b;font-weight:800}
+.node.blue{background:#3b82f6;border-color:#2563eb;color:#fff}
+.node.green{background:#22c55e;border-color:#16a34a;color:#fff}
+.node.purple{background:#a855f7;border-color:#9333ea;color:#fff}
+.node.locked{background:#f1f5f9;border-color:#e2e8f0;color:#cbd5e1;box-shadow:none}
+.node.current{box-shadow:0 0 0 5px rgba(250,204,21,.4),0 4px 10px rgba(0,0,0,.15)}
+.check-badge{position:absolute;bottom:-3px;right:-3px;width:14px;height:14px;background:#fbbf24;border-radius:50%;border:2px solid #fff;font-size:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900}
+.connector{width:2px;height:20px;background:#e2e8f0;border-radius:2px;margin:0 auto}
+.node-wrap{display:flex;flex-direction:column;align-items:center}
+
+/* ── Screen 2: Practice ──────────────────────── */
+.ex-progress{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ex-bar{flex:1;height:8px;background:#f1f5f9;border-radius:6px;overflow:hidden}
+.ex-bar-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:6px}
+.ex-stop{font-size:10px;color:#94a3b8;font-weight:700}
+
+.combo-banner{background:linear-gradient(135deg,#fff7ed,#fed7aa);border:2px solid #fb923c;border-radius:14px;padding:8px 12px;text-align:center;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px}
+.combo-text{font-size:12px;font-weight:900;color:#ea580c}
+
+.question-card{background:#fff;border:2px solid #e0e9ff;border-radius:18px;padding:14px;margin-bottom:10px;text-align:center}
+.q-topic{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.q-text{font-size:16px;font-weight:900;color:#1e293b;margin-bottom:4px}
+.q-sub{font-size:11px;color:#64748b;font-weight:600}
+.q-blank{display:inline-block;min-width:40px;border-bottom:3px solid #3b82f6;text-align:center;font-size:20px;font-weight:900;color:#3b82f6;padding:0 4px}
+
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.choice{background:#f8faff;border:2px solid #e0e9ff;border-radius:12px;padding:9px;text-align:center;font-size:13px;font-weight:800;color:#334155}
+.choice.correct{background:#dcfce7;border-color:#86efac;color:#15803d}
+
+.difficulty-pill{background:#dbeafe;border-radius:20px;padding:3px 10px;font-size:9px;font-weight:800;color:#2563eb;display:inline-block}
+
+/* ── Screen 3: Result ────────────────────────── */
+.result-hero{background:linear-gradient(160deg,#fbbf24,#f59e0b);border-radius:0 0 28px 28px;padding:20px 16px 16px;text-align:center;color:#fff;flex-shrink:0}
+.result-emoji{font-size:52px;display:block;margin-bottom:6px}
+.result-title{font-size:22px;font-weight:900;margin-bottom:4px}
+.result-sub{font-size:11px;opacity:.9;font-weight:600}
+.confetti-row{display:flex;justify-content:center;gap:4px;margin-top:6px;font-size:14px}
+
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
+.stat-box{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:8px 4px;text-align:center}
+.stat-val{font-size:16px;font-weight:900;color:#1e40af}
+.stat-lbl{font-size:8px;color:#94a3b8;margin-top:1px;font-weight:700}
+
+.combo-result{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.combo-result span{font-size:10px;font-weight:800;color:#ea580c}
+
+.dots-row{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:10px}
+.dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;border:2px solid}
+.dot.ok{background:#dcfce7;border-color:#86efac;color:#15803d}
+.dot.bad{background:#fee2e2;border-color:#fca5a5;color:#dc2626}
+
+.btn-row{display:flex;gap:6px}
+.btn-home{flex:1;background:#f1f5f9;border-radius:12px;padding:9px;text-align:center;font-size:11px;font-weight:800;color:#475569}
+.btn-next{flex:1;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:12px;padding:9px;text-align:center;font-size:11px;font-weight:800;color:#fff;box-shadow:0 4px 12px rgba(59,130,246,.35)}
+
+/* ── Screen 4: Profile ───────────────────────── */
+.profile-header{background:linear-gradient(160deg,#eff6ff,#fff);padding:16px 12px 10px;text-align:center;flex-shrink:0}
+.avatar-circle{width:70px;height:70px;background:#dbeafe;border-radius:50%;border:4px solid #fff;box-shadow:0 4px 16px rgba(59,130,246,.25);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 8px;position:relative}
+.edit-pin{position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;background:#3b82f6;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:11px}
+.profile-name{font-size:16px;font-weight:900;color:#1e293b}
+.profile-nick{font-size:10px;color:#94a3b8;font-weight:700}
+.profile-school{font-size:10px;color:#64748b;margin-top:2px}
+
+.form-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:10px 12px;margin-bottom:8px}
+.form-label{font-size:8px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.form-input{background:#f8faff;border:1.5px solid #e0e9ff;border-radius:10px;padding:7px 10px;font-size:11px;font-weight:700;color:#334155;width:100%;margin-bottom:8px}
+.form-input:last-child{margin-bottom:0}
+.gender-row{display:flex;gap:4px;margin-bottom:8px}
+.gender-btn{flex:1;background:#f8faff;border:1.5px solid #e0e9ff;border-radius:10px;padding:6px 4px;text-align:center;font-size:10px;font-weight:800;color:#64748b}
+.gender-btn.active{background:#eff6ff;border-color:#93c5fd;color:#2563eb}
+
+.avatar-tabs{display:flex;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:8px}
+.atab{flex:1;padding:5px;text-align:center;font-size:10px;font-weight:800;color:#94a3b8;border-radius:8px}
+.atab.active{background:#fff;color:#3b82f6;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.emoji-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.emoji-opt{background:#f8faff;border:1.5px solid #e0e9ff;border-radius:10px;padding:5px;text-align:center;font-size:14px}
+.emoji-opt.sel{border-color:#3b82f6;background:#eff6ff}
+
+.save-btn{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-weight:900;font-size:12px;border-radius:14px;padding:11px;text-align:center;margin-top:6px;box-shadow:0 4px 12px rgba(59,130,246,.35)}
+
+/* ── Screen 5: Topics ────────────────────────── */
+.week-header{background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;padding:12px;text-align:center;flex-shrink:0;border-radius:0 0 20px 20px;margin-bottom:8px}
+.week-header h2{font-size:14px;font-weight:900}
+.week-header p{font-size:10px;opacity:.8;font-weight:600;margin-top:2px}
+
+.stats-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.sbox{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:7px;text-align:center}
+.sbox-val{font-size:15px;font-weight:900}
+.sbox-val.gold{color:#f59e0b}
+.sbox-val.orange{color:#f97316}
+.sbox-val.blue{color:#3b82f6}
+.sbox-lbl{font-size:8px;color:#94a3b8;font-weight:700}
+
+.section-title{font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.topic-card{border-radius:12px;border:1.5px solid;padding:8px;text-align:left}
+.topic-card.blue-c{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+.topic-card.green-c{background:#f0fdf4;border-color:#86efac;color:#15803d}
+.topic-card.purple-c{background:#faf5ff;border-color:#d8b4fe;color:#7e22ce}
+.topic-card.pink-c{background:#fdf2f8;border-color:#f0abfc;color:#86198f}
+.topic-name{font-size:9px;font-weight:800;line-height:1.3;margin-bottom:5px}
+.topic-bar{height:4px;background:rgba(255,255,255,.6);border-radius:3px;overflow:hidden}
+.topic-bar-fill{height:100%;border-radius:3px;background:currentColor;opacity:.6}
+.mastery-badge{font-size:9px;float:right}
+
+/* Bottom nav */
+.bottom-nav{background:#fff;border-top:1px solid #e2e8f0;padding:8px 0 6px;display:flex;justify-content:space-around;flex-shrink:0;margin-top:auto}
+.nav-item{display:flex;flex-direction:column;align-items:center;font-size:8px;font-weight:700;gap:2px;color:#94a3b8}
+.nav-item.active{color:#3b82f6}
+.nav-icon{font-size:16px}
+
+/* Watermark */
+.watermark{text-align:center;margin-top:32px;font-size:12px;color:#94a3b8;font-weight:600}
+</style>
+</head>
+<body>
+
+<h1 class="page-title">📐 Vui Học Toán</h1>
+<p class="page-sub">Web app luyện Toán lớp 3 — Giao diện các màn hình chính</p>
+
+<div class="screens">
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 1 — HOME / LEARNING PATH
+  ══════════════════════════════════════════ -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+
+      <!-- Top bar -->
+      <div class="topbar">
+        <div class="topbar-logo">📐 Toán Vui</div>
+        <div class="topbar-right">
+          <span class="badge">🔥 7</span>
+          <span class="badge badge-blue">⭐ 142</span>
+          <span style="font-size:14px">🔊</span>
+        </div>
+      </div>
+
+      <div class="content" style="overflow-y:auto;padding-bottom:8px">
+        <!-- Welcome -->
+        <div style="margin-bottom:8px">
+          <p style="font-size:14px;font-weight:900;color:#1e293b">Chào Minh! 👋</p>
+          <p style="font-size:10px;color:#94a3b8;font-weight:600">Tiếp tục hành trình học toán nào!</p>
+        </div>
+
+        <!-- Mascot card -->
+        <div class="mascot-card">
+          <div class="mascot-emoji">🦉</div>
+          <div class="mascot-text">
+            <p>Wow! 7 ngày liên tiếp! Bé thật tuyệt vời! 🔥</p>
+            <div class="mini-bar" style="margin-top:4px">
+              <div class="mini-bar-fill" style="width:70%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:8px;color:#94a3b8;margin-top:2px"><span>Mục tiêu hôm nay</span><span>7/10 ⭐</span></div>
+          </div>
+          <!-- Ring SVG -->
+          <svg class="goal-ring" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="4"/>
+            <circle cx="20" cy="20" r="16" fill="none" stroke="#3b82f6" stroke-width="4" stroke-linecap="round"
+              stroke-dasharray="100.5" stroke-dashoffset="30.15" transform="rotate(-90 20 20)"/>
+            <text x="20" y="24" text-anchor="middle" font-size="8" font-weight="900" fill="#1e40af">70%</text>
+          </svg>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress-card">
+          <div class="prog-row"><span>Hành trình của bé</span><span style="color:#3b82f6">38%</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:38%"></div></div>
+          <div class="prog-labels"><span>🌱 Bắt đầu</span><span>18/48 bài</span><span>🏆 Hoàn thành</span></div>
+        </div>
+
+        <!-- Random btn -->
+        <div class="rnd-btn">🎲 Luyện ngẫu nhiên</div>
+
+        <!-- Chapter banner -->
+        <div class="chapter-banner">
+          <small>Học kỳ 1</small>
+          <p>Chương 1: Các số đến 10 000</p>
+        </div>
+
+        <!-- Path nodes -->
+        <div class="path">
+          <div class="path-row left">
+            <div class="node-wrap">
+              <div class="node blue current">🔢<div class="check-badge">✓</div></div>
+              <div class="node-label">Đọc viết số</div>
+              <div class="node-stars">★★★</div>
+            </div>
+          </div>
+          <div class="connector"></div>
+          <div class="path-row center">
+            <div class="node-wrap">
+              <div class="node green current" style="box-shadow:0 0 0 5px rgba(250,204,21,.4)">🔢</div>
+              <div class="node-label">So sánh số</div>
+              <div class="node-stars" style="color:#fcd34d">★★☆</div>
+            </div>
+          </div>
+          <div class="connector"></div>
+          <div class="path-row right">
+            <div class="node-wrap">
+              <div class="node purple">✏️</div>
+              <div class="node-label">Làm tròn số</div>
+              <div class="node-stars" style="color:#e9d5ff">★☆☆</div>
+            </div>
+          </div>
+          <div class="connector"></div>
+          <div class="path-row center">
+            <div class="node-wrap">
+              <div class="node locked">🔒</div>
+              <div class="node-label" style="color:#cbd5e1">Cộng có nhớ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom nav -->
+      <div class="bottom-nav">
+        <div class="nav-item active"><span class="nav-icon">🏠</span>Trang chủ</div>
+        <div class="nav-item"><span class="nav-icon">📚</span>Bài học</div>
+        <div class="nav-item"><span class="nav-icon">👤</span>Cá nhân</div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-label">1 — Trang chủ</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 2 — PRACTICE / EXERCISE
+  ══════════════════════════════════════════ -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:43</span><span>📶 🔋</span></div>
+
+      <div style="padding:12px 12px 0">
+        <!-- Progress bar -->
+        <div class="ex-progress">
+          <div class="ex-bar"><div class="ex-bar-fill" style="width:50%"></div></div>
+          <span class="ex-stop">Dừng</span>
+        </div>
+
+        <!-- Combo banner -->
+        <div class="combo-banner">
+          <span style="font-size:18px;animation:bob 0.5s infinite alternate">🔥</span>
+          <span class="combo-text">5 đúng liên tiếp!</span>
+          <span style="font-size:18px;animation:bob 0.5s infinite alternate-reverse">🔥</span>
+        </div>
+
+        <!-- Difficulty -->
+        <div style="text-align:center;margin-bottom:8px">
+          <span class="difficulty-pill">⚡ Trung bình</span>
+        </div>
+
+        <!-- Question card -->
+        <div class="question-card">
+          <div class="q-topic">Phép cộng có nhớ</div>
+          <div class="q-text">3 456 + 2 <span class="q-blank">?</span> 7 = 6 043</div>
+          <div class="q-sub">Tìm chữ số còn thiếu</div>
+        </div>
+
+        <!-- Multiple choice -->
+        <div class="choices">
+          <div class="choice">8</div>
+          <div class="choice correct">5</div>
+          <div class="choice">3</div>
+          <div class="choice">7</div>
+        </div>
+
+        <!-- Correct feedback -->
+        <div style="background:#dcfce7;border:2px solid #86efac;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:20px">✅</span>
+          <div>
+            <p style="font-size:11px;font-weight:900;color:#15803d">Chính xác!</p>
+            <p style="font-size:9px;color:#16a34a">3456 + 2<b>5</b>7 = 3713... +2330 = 6043 ✓</p>
+          </div>
+        </div>
+
+        <!-- Stars earned this session -->
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:10px;font-weight:700;color:#94a3b8">Sao đã kiếm:</span>
+          <span style="font-size:13px;font-weight:900;color:#f59e0b">⭐ +8 sao</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-label">2 — Đang luyện tập</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 3 — SESSION SUMMARY
+  ══════════════════════════════════════════ -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="statusbar" style="background:#fbbf24"><span>9:51</span><span>📶 🔋</span></div>
+
+      <!-- Hero -->
+      <div class="result-hero">
+        <span class="result-emoji">🏆</span>
+        <div class="result-title">XUẤT SẮC!</div>
+        <div class="result-sub">Bé trả lời đúng tất cả! Tuyệt vời! 🌟</div>
+        <div class="confetti-row">🎊 🌟 ✨ 🎉 💫 🎊</div>
+      </div>
+
+      <div style="padding:10px 10px 0;flex:1;overflow-y:auto">
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-val">10/10</div><div class="stat-lbl">Câu đúng</div></div>
+          <div class="stat-box"><div class="stat-val" style="color:#22c55e">100%</div><div class="stat-lbl">Chính xác</div></div>
+          <div class="stat-box"><div class="stat-val" style="color:#f59e0b">⭐ 13</div><div class="stat-lbl">Sao</div></div>
+        </div>
+
+        <!-- Combo result -->
+        <div class="combo-result">
+          <span style="font-size:16px">🔥</span>
+          <span>Chuỗi dài nhất: <b style="font-size:13px">10</b> câu liên tiếp!</span>
+          <span style="font-size:16px">🔥</span>
+        </div>
+
+        <!-- Dots review -->
+        <p style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Chi tiết bài làm</p>
+        <div class="dots-row">
+          <div class="dot ok">✓</div><div class="dot ok">✓</div><div class="dot ok">✓</div>
+          <div class="dot ok">✓</div><div class="dot ok">✓</div><div class="dot ok">✓</div>
+          <div class="dot ok">✓</div><div class="dot ok">✓</div><div class="dot ok">✓</div>
+          <div class="dot ok">✓</div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="btn-row">
+          <div class="btn-home">🏠 Trang chủ</div>
+          <div class="btn-next">Luyện tiếp 🚀</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-label">3 — Kết quả buổi học</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 4 — PROFILE EDIT
+  ══════════════════════════════════════════ -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:55</span><span>📶 🔋</span></div>
+      <div class="topbar">
+        <span style="font-size:13px;font-weight:900;color:#334155">👤 Cá nhân</span>
+        <span class="badge badge-blue">Ba/Mẹ</span>
+      </div>
+
+      <div class="content" style="overflow-y:auto;padding-bottom:8px">
+        <!-- Profile header -->
+        <div class="profile-header">
+          <div class="avatar-circle">🐱<div class="edit-pin">✏️</div></div>
+          <div class="profile-name">Nguyễn Minh</div>
+          <div class="profile-nick">@minhsuper</div>
+          <div class="profile-school">🏫 Tiểu học Lê Văn Tám</div>
+          <div style="display:flex;justify-content:center;gap:10px;margin-top:8px">
+            <span class="badge">⭐ 142</span>
+            <span class="badge" style="background:#fff7ed;border-color:#fed7aa;color:#c2410c">🔥 7 ngày</span>
+          </div>
+        </div>
+
+        <!-- Edit form -->
+        <div class="form-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:11px;font-weight:900;color:#334155">✏️ Sửa hồ sơ</span>
+            <span style="font-size:9px;color:#94a3b8;font-weight:700">Hủy</span>
+          </div>
+
+          <div class="form-label">Tên bé</div>
+          <div class="form-input">Nguyễn Minh</div>
+
+          <div class="form-label">Biệt danh</div>
+          <div class="form-input" style="color:#3b82f6">@minhsuper</div>
+
+          <div class="form-label">Giới tính</div>
+          <div class="gender-row">
+            <div class="gender-btn active">👦 Nam</div>
+            <div class="gender-btn">👧 Nữ</div>
+            <div class="gender-btn">🧒 Khác</div>
+          </div>
+
+          <div class="form-label">Trường học</div>
+          <div class="form-input">Tiểu học Lê Văn Tám</div>
+
+          <div class="form-label">Ảnh đại diện</div>
+          <div class="avatar-tabs">
+            <div class="atab active">🎭 Nhân vật</div>
+            <div class="atab">📷 Ảnh thật</div>
+          </div>
+          <div class="emoji-grid">
+            <div class="emoji-opt sel">🐱</div>
+            <div class="emoji-opt">🐶</div>
+            <div class="emoji-opt">🐻</div>
+            <div class="emoji-opt">🦊</div>
+            <div class="emoji-opt">🦁</div>
+            <div class="emoji-opt">🐼</div>
+            <div class="emoji-opt">🦄</div>
+            <div class="emoji-opt">🦉</div>
+          </div>
+
+          <div class="save-btn">💾 Lưu hồ sơ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-label">4 — Sửa hồ sơ</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCREEN 5 — TOPICS / ALL LESSONS
+  ══════════════════════════════════════════ -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="statusbar" style="background:#8b5cf6;color:#fff"><span>9:58</span><span>📶 🔋</span></div>
+
+      <div class="week-header">
+        <h2>📚 Tất cả bài học</h2>
+        <p>Lớp 3 — Cánh Diều</p>
+      </div>
+
+      <div class="content" style="overflow-y:auto;padding-bottom:8px">
+        <!-- Mini stats -->
+        <div class="stats-mini">
+          <div class="sbox"><div class="sbox-val gold">18</div><div class="sbox-lbl">⭐ Thành thạo</div></div>
+          <div class="sbox"><div class="sbox-val orange">5</div><div class="sbox-lbl">🔴 Cần ôn</div></div>
+          <div class="sbox"><div class="sbox-val blue">48</div><div class="sbox-lbl">📝 Tổng bài</div></div>
+        </div>
+
+        <!-- Chapter 1 -->
+        <div class="section-title">Chương 1 — Các số đến 10 000</div>
+        <div class="topic-grid" style="margin-bottom:10px">
+          <div class="topic-card blue-c">
+            <span class="mastery-badge">⭐</span>
+            <div class="topic-name">Đọc, viết các số đến 10 000</div>
+            <div class="topic-bar"><div class="topic-bar-fill" style="width:100%"></div></div>
+          </div>
+          <div class="topic-card blue-c">
+            <span class="mastery-badge">⭐</span>
+            <div class="topic-name">So sánh và sắp xếp</div>
+            <div class="topic-bar"><div class="topic-bar-fill" style="width:100%"></div></div>
+          </div>
+          <div class="topic-card green-c">
+            <span class="mastery-badge">🔄</span>
+            <div class="topic-name">Làm tròn số</div>
+            <div class="topic-bar"><div class="topic-bar-fill" style="width:65%"></div></div>
+          </div>
+          <div class="topic-card blue-c" style="opacity:.45">
+            <span class="mastery-badge">🔒</span>
+            <div class="topic-name">Cộng có nhớ</div>
+            <div class="topic-bar"><div class="topic-bar-fill" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <!-- Chapter 2 -->
+        <div class="section-title">Chương 2 — Phép nhân, phép chia</div>
+        <div class="topic-grid">
+          <div class="topic-card purple-c">
+            <span class="mastery-badge">📖</span>
+            <div class="topic-name">Bảng nhân 6, 7</div>
+            <div class="topic-bar"><div class="topic-bar-fill" style="width:30%"></div></div>
+          </div>
+          <div class="topic-card pink-c" style="opacity:.4">
+            <span class="mastery-badge">🔒</span>
+            <div class="topic-name">Bảng chia 6, 7</div>
+            <div class="topic-bar"><div class="topic-bar-fill" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom nav -->
+      <div class="bottom-nav">
+        <div class="nav-item"><span class="nav-icon">🏠</span>Trang chủ</div>
+        <div class="nav-item active"><span class="nav-icon">📚</span>Bài học</div>
+        <div class="nav-item"><span class="nav-icon">👤</span>Cá nhân</div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-label">5 — Danh sách bài học</div>
+  </div>
+
+</div><!-- /screens -->
+
+<p class="watermark">vui-hoc-toan.vercel.app · Toán Vui 3 · 2025</p>
+
+</body>
+</html>
