@@ -27,6 +27,8 @@ export interface CurriculumTopic {
   created_at: string;
 }
 
+export type GenderType = "male" | "female" | "other";
+
 export interface Student {
   id: string;
   parent_id: string;
@@ -35,6 +37,11 @@ export interface Student {
   series: SeriesType;
   current_week: number;
   avatar_id: string;
+  // Extended profile fields (migration 003)
+  username: string | null;
+  avatar_url: string | null;
+  gender: GenderType | null;
+  school: string | null;
   total_stars: number;
   streak_days: number;
   last_practice_date: string | null;
