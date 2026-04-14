@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useStudentStore } from "@/stores/studentStore";
@@ -184,9 +184,23 @@ function MascotCard({ streakDays, practicedToday, dailyStars }: {
 // ─────────────────────────────────────────────────────────
 // Main page
 // ─────────────────────────────────────────────────────────
+function ScrollToTopic({ topics }: { topics: CurriculumTopic[] }) {
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const scrollToId = searchParams.get("scrollTo");
+    if (!scrollToId || topics.length === 0) return;
+    const el = document.getElementById(`topic-${scrollToId}`);
+    if (el) {
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [searchParams, topics]);
+  return null;
+}
+
 export default function HomePage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { student } = useStudentStore();
   const { startSession } = useSessionStore();
   const [topics, setTopics] = useState<CurriculumTopic[]>([]);
@@ -224,17 +238,6 @@ export default function HomePage() {
     load();
   }, [supabase, student]);
 
-  // Scroll to topic node after navigating back from "Luyện tiếp"
-  useEffect(() => {
-    const scrollToId = searchParams.get("scrollTo");
-    if (!scrollToId || topics.length === 0) return;
-    const el = document.getElementById(`topic-${scrollToId}`);
-    if (el) {
-      setTimeout(() => {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 300);
-    }
-  }, [searchParams, topics]);
 
   async function startPractice(topic: CurriculumTopic, e?: React.MouseEvent | { clientX: number; clientY: number }) {
     const topicProgress = progress[topic.id];
@@ -301,6 +304,7 @@ export default function HomePage() {
 
   return (
     <div className="px-4 py-6 pb-28">
+      <Suspense fallback={null}><ScrollToTopic topics={topics} /></Suspense>
       <Burst x={burst.x} y={burst.y} show={burst.show} />
 
       {/* Welcome */}
