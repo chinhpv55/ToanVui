@@ -6,12 +6,14 @@ import { useSessionStore } from "@/stores/sessionStore";
 import { useStudentStore } from "@/stores/studentStore";
 import { GeneratedExercise } from "@/types/exercise";
 import ProgressBar from "@/components/ui/ProgressBar";
+import { motion, AnimatePresence } from "framer-motion";
 import FillBlank from "./FillBlank";
 import MultipleChoice from "./MultipleChoice";
 import DragDrop from "./DragDrop";
 import ResultFeedback from "./ResultFeedback";
 import SessionSummary from "./SessionSummary";
 import { preloadSounds, playCorrect, playIncorrect, playStreak } from "@/lib/sound";
+import { addDailyStars } from "@/lib/dailyGoal";
 
 export default function ExerciseShell() {
   const router = useRouter();
@@ -24,6 +26,7 @@ export default function ExerciseShell() {
     topicName,
     topicId,
     isLoading,
+    consecutiveCorrect,
     submitAnswer,
     nextQuestion,
     resetSession,
@@ -46,13 +49,15 @@ export default function ExerciseShell() {
     preloadSounds();
   }, []);
 
-  // Sync stars to studentStore when session finishes
+  // Sync stars to studentStore + daily goal when session finishes
   useEffect(() => {
     if (isFinished && starsEarned > 0 && !starsSyncedRef.current) {
       starsSyncedRef.current = true;
       updateStars(starsEarned);
+      // Track daily goal progress
+      if (student?.id) addDailyStars(student.id, starsEarned);
     }
-  }, [isFinished, starsEarned, updateStars]);
+  }, [isFinished, starsEarned, updateStars, student]);
 
   const handleSubmit = useCallback(
     async (answer: string) => {
@@ -195,6 +200,38 @@ export default function ExerciseShell() {
           Dừng
         </button>
       </div>
+
+      {/* Combo fire counter */}
+      <AnimatePresence>
+        {consecutiveCorrect >= 3 && !showResult && (
+          <motion.div
+            key={consecutiveCorrect}
+            initial={{ opacity: 0, scale: 0.6, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.6 }}
+            className="flex items-center justify-center gap-2 mb-4"
+          >
+            <motion.span
+              animate={{ rotate: [-8, 8, -8] }}
+              transition={{ duration: 0.5, repeat: Infinity }}
+              className="text-2xl"
+            >
+              🔥
+            </motion.span>
+            <span className="text-lg font-extrabold text-orange-500">
+              {consecutiveCorrect >= 10 ? "SIÊU SAO! " : consecutiveCorrect >= 5 ? "TUYỆT VỜI! " : ""}
+              {consecutiveCorrect} đúng liên tiếp!
+            </span>
+            <motion.span
+              animate={{ rotate: [8, -8, 8] }}
+              transition={{ duration: 0.5, repeat: Infinity }}
+              className="text-2xl"
+            >
+              🔥
+            </motion.span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Question */}
       {!showResult && (
