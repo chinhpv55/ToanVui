@@ -2,6 +2,11 @@ import { create } from "zustand";
 import { DifficultyLevel } from "@/types/database";
 import { GeneratedExercise, ExerciseResult } from "@/types/exercise";
 
+// Normalize question text for dedup (mirrors API-side logic)
+function normQ(q: string): string {
+  return q.toLowerCase().replace(/\s+/g, "").replace(/[×x*]/g, "*").replace(/[÷/]/g, "/");
+}
+
 interface SessionStore {
   sessionId: string | null;
   topicId: string | null;
@@ -56,11 +61,12 @@ export const useSessionStore = create<SessionStore>((set) => ({
     }),
 
   setQuestions: (questions) => {
-    // Dedup by question text
+    // Dedup by normalized question text
     const seen = new Set<string>();
     const unique = questions.filter((q) => {
-      if (seen.has(q.question)) return false;
-      seen.add(q.question);
+      const key = normQ(q.question);
+      if (seen.has(key)) return false;
+      seen.add(key);
       return true;
     });
     return set({ questions: unique, isLoading: false });
@@ -68,8 +74,9 @@ export const useSessionStore = create<SessionStore>((set) => ({
 
   addQuestion: (question) =>
     set((state) => {
-      // Skip if duplicate question text
-      if (state.questions.some((q) => q.question === question.question)) {
+      // Skip if duplicate (normalized)
+      const key = normQ(question.question);
+      if (state.questions.some((q) => normQ(q.question) === key)) {
         return state;
       }
       return { questions: [...state.questions, question] };

@@ -8,7 +8,7 @@ Với multiple_choice: choices là mảng 4 phần tử, answer là chính xác 
 Với fill_blank: choices là null.
 Đảm bảo answer luôn là chuỗi (string), kể cả khi là số.
 QUAN TRỌNG: hint chỉ gợi ý cách giải (ví dụ: "Nhớ bảng nhân 9" hoặc "Cộng từ hàng đơn vị"), TUYỆT ĐỐI KHÔNG được chứa đáp án hoặc kết quả phép tính.
-Mỗi lần sinh câu hỏi khác nhau, KHÔNG lặp lại câu trước.`;
+BẮT BUỘC: Mỗi câu hỏi phải dùng số và cách hỏi KHÁC HOÀN TOÀN với danh sách "Đã dùng" bên dưới.`;
 
 export const EXPLANATION_SYSTEM_PROMPT = `Bạn là trợ lý giải thích Toán cho bé lớp 3 Việt Nam.
 Khi bé trả lời sai, hãy giải thích bằng ngôn ngữ thật đơn giản, vui, và dùng ví dụ bằng đồ vật quen thuộc (kẹo, bút, đồ chơi).
@@ -18,11 +18,19 @@ Tối đa 3 câu ngắn gọn. Không dùng markdown.`;
 export function buildExercisePrompt(
   template: string,
   difficulty: DifficultyLevel,
-  questionType: QuestionType
+  questionType: QuestionType,
+  usedAnswers: string[] = []
 ): string {
-  return template
+  const base = template
     .replace(/\{difficulty\}/g, difficulty)
     .replace(/\{question_type\}/g, questionType);
+
+  if (usedAnswers.length === 0) return base;
+
+  return `${base}
+
+Đã dùng trong buổi này (KHÔNG được lặp lại): ${usedAnswers.join(", ")}
+Hãy chọn số và phép tính KHÁC HOÀN TOÀN.`;
 }
 
 export function buildExplanationPrompt(
