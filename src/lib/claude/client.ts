@@ -14,3 +14,11 @@ export function getClaudeClient(): Anthropic {
   }
   return client;
 }
+
+// Pick the right model for the topic's grade level.
+//   Grade 1-5: Haiku 4.5  — ~12x cheaper, plenty for elementary arithmetic.
+//   Grade 6-9: Sonnet 4.6 — better reasoning for algebra/geometry word problems.
+export function pickModelForGrade(grade: number): string {
+  if (grade <= 5) return "claude-haiku-4-5-20251001";
+  return "claude-sonnet-4-6";
+}

@@ -36,6 +36,9 @@ export default async function AdminLayout({
               <Link href="/admin" className="text-gray-700 hover:text-primary-600 font-medium">
                 Người dùng
               </Link>
+              <Link href="/admin/bank" className="text-gray-700 hover:text-primary-600 font-medium">
+                Kho bài tập
+              </Link>
               <Link href="/home" className="text-gray-500 hover:text-gray-700">
                 ← Về app
               </Link>

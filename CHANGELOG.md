@@ -5,6 +5,24 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.2.0] — 2026-04-26
+
+**Đợt 3 — Kho bài tập (cache) + chia model theo cấp**
+
+### Thêm
+- **Kho bài tập (`exercise_bank`)**: Claude sinh xong câu nào thì lưu vào kho. Lần sau user yêu cầu cùng (chủ đề × độ khó), app trả từ kho ngay (gần $0). Mỗi user có bảng `student_seen_exercises` để không gặp lại câu đã làm.
+- **Trang `/admin/bank`**: thống kê số câu/topic/độ khó, nút **Seed tất cả** để pre-seed sẵn (mặc định 30 câu × 3 độ khó × topic), progress bar khi chạy bulk.
+- **Multi-model**: lớp 1-5 dùng Haiku 4.5 (~12x rẻ hơn Sonnet), lớp 6-9 dùng Sonnet 4.6.
+
+### Sửa / Tối ưu
+- `/api/generate-exercise` đổi flow: **bank-first** → AI lazy fill → lưu kho → mark seen. Giảm chi phí ~80-95% sau khi kho đầy.
+
+### Hạ tầng
+- Migration `006_exercise_bank.sql`: 2 bảng + 3 RPC (`get_unseen_exercises`, `mark_exercises_seen`, `bank_stats`).
+- `/api/admin/seed-bank` (admin-only) với cap `MAX_CALLS_PER_REQUEST=12` để giới hạn chi phí mỗi lần gọi.
+
+---
+
 ## [1.1.0] — 2026-04-26
 
 **Đợt 2 — Admin panel + Chọn lớp + Bảng xếp hạng tuần**
