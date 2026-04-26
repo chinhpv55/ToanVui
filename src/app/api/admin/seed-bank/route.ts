@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClaudeClient, pickModelForGrade } from "@/lib/claude/client";
 import { buildBatchSystemPrompt, buildBatchExercisePrompt } from "@/lib/claude/prompts";
-import { parseExerciseArrayResponse } from "@/lib/claude/parser";
+import { parseExerciseArrayResponse, PARSER_VERSION } from "@/lib/claude/parser";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { DifficultyLevel } from "@/types/database";
 import { GeneratedExercise } from "@/types/exercise";
@@ -193,7 +193,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      api_version: "1.3.6",
+      api_version: "1.3.7",
+      parser_version: PARSER_VERSION,
       topic_id,
       topic_name: topic.topic_name,
       grade: topic.grade,

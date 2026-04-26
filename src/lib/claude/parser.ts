@@ -1,5 +1,9 @@
 import { GeneratedExercise } from "@/types/exercise";
 
+// Bump this when parser logic changes — Vercel uses this to confirm
+// which build is live (visible in seed-bank Network response).
+export const PARSER_VERSION = "1.3.7-boundary-extraction";
+
 function validateExercise(parsed: unknown): GeneratedExercise | null {
   if (!parsed || typeof parsed !== "object") return null;
   const p = parsed as Record<string, unknown>;

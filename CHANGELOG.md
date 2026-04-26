@@ -5,6 +5,13 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.3.7] — 2026-04-26
+
+### Debug
+- Em test parser logic locally với raw response thực — **parser CHẠY ĐÚNG**, return 2/2 exercises hợp lệ. Vậy bug không ở parser. Bump version + thêm `parser_version` stamp để xác nhận Vercel deploy có thực sự dùng parser mới hay đang serve bundle cũ.
+
+---
+
 ## [1.3.6] — 2026-04-26
 
 ### Debug
