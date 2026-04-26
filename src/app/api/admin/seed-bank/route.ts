@@ -118,8 +118,17 @@ export async function POST(request: NextRequest) {
           const text =
             message.content[0].type === "text" ? message.content[0].text : "";
           fresh = parseExerciseArrayResponse(text);
+          if (fresh.length === 0) {
+            console.warn(
+              `seed-bank: 0 exercises parsed for ${topic.topic_name} (${difficulty}, model=${model}). Stopping difficulty.`
+            );
+          }
         } catch (e) {
-          console.error("seed-bank Claude call failed:", e);
+          console.error(
+            "seed-bank Claude call failed:",
+            e instanceof Error ? e.message : String(e),
+            `topic=${topic.topic_name} diff=${difficulty} model=${model}`
+          );
           break; // stop this difficulty on error, move to next
         }
         aiCalls++;

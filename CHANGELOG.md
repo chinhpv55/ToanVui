@@ -5,6 +5,14 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.3.2] — 2026-04-26
+
+### Fix
+- **Bank seed +0 câu**: parser quá khắt khe khi Claude (Haiku/Sonnet) trả về JSON kèm preamble (`Here's the array:...`) hoặc bọc trong object (`{exercises: [...]}`). Parser giờ extract array bằng regex fallback và unwrap `{exercises: ...}` tự động. Khi vẫn fail, log raw response 300 ký tự đầu lên Vercel logs để debug.
+- **Seed-bank route**: log model + topic + difficulty khi gọi Claude fail, dễ tìm lỗi qua Vercel.
+
+---
+
 ## [1.3.1] — 2026-04-26
 
 ### Fix

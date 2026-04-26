@@ -35,13 +35,40 @@ function validateExercise(parsed: unknown): GeneratedExercise | null {
 
 export function parseExerciseArrayResponse(raw: string): GeneratedExercise[] {
   try {
-    const cleaned = stripFences(raw);
+    let cleaned = stripFences(raw);
+
+    // Some models (esp. Haiku) prepend a sentence like "Here's the array:" or
+    // wrap output as `{ "exercises": [...] }`. Extract the first JSON array
+    // we can find as a fallback.
+    if (!cleaned.startsWith("[")) {
+      const arrayMatch = cleaned.match(/\[\s*\{[\s\S]*\}\s*\]/);
+      if (arrayMatch) cleaned = arrayMatch[0];
+    }
+
     const parsed = JSON.parse(cleaned);
-    const arr = Array.isArray(parsed) ? parsed : [parsed];
-    return arr
+    const arr = Array.isArray(parsed)
+      ? parsed
+      : Array.isArray((parsed as { exercises?: unknown }).exercises)
+      ? (parsed as { exercises: unknown[] }).exercises
+      : [parsed];
+    const out = arr
       .map(validateExercise)
       .filter((x): x is GeneratedExercise => x !== null);
-  } catch {
+
+    if (out.length === 0) {
+      console.error(
+        "parseExerciseArrayResponse: parsed but no valid exercises. Raw start:",
+        raw.slice(0, 300)
+      );
+    }
+    return out;
+  } catch (e) {
+    console.error(
+      "parseExerciseArrayResponse failed:",
+      e instanceof Error ? e.message : String(e),
+      "Raw start:",
+      raw.slice(0, 300)
+    );
     return [];
   }
 }
