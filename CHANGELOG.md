@@ -5,6 +5,13 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.3.9] — 2026-04-26
+
+### Tối ưu
+- **Seed-bank: 1 request seed xong cả 3 độ khó.** Trước v1.3.8 cap `MAX_CALLS_PER_REQUEST=12` chỉ vừa cho 2 difficulty (easy + medium = 12 calls), hard luôn `=0` → admin phải bấm Seed lần 2. Tăng cap lên **20** (6 calls/diff × 3 + 2 dự phòng dedup) và set explicit `maxDuration = 60` cho route — Hobby và Pro plan đều có 60s budget thay vì default 10/15s.
+
+---
+
 ## [1.3.8] — 2026-04-26
 
 ### Fix

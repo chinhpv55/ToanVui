@@ -26,10 +26,15 @@ interface DifficultyResult {
   ai_calls: number;
 }
 
+// Vercel: explicit 60s ceiling. Pro plan can extend to 300s, Hobby caps
+// at 60s. Either way this gives the route a deterministic budget instead
+// of inheriting plan defaults (10s/15s) which truncate seeding.
+export const maxDuration = 60;
+
 const DIFFICULTIES: DifficultyLevel[] = ["easy", "medium", "hard"];
-const BATCH_SIZE = 5;            // exercises per Claude call
+const BATCH_SIZE = 5;             // exercises per Claude call
 const MAX_TOKENS_PER_BATCH = 600; // generous per-exercise budget for verbose Vietnamese hints
-const MAX_CALLS_PER_REQUEST = 12; // hard cap to bound cost per HTTP request
+const MAX_CALLS_PER_REQUEST = 20; // 6 calls/diff * 3 diffs + 2 dedup-retry buffer; ~60s budget
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
@@ -200,7 +205,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      api_version: "1.3.8",
+      api_version: "1.3.9",
       parser_version: PARSER_VERSION,
       topic_id,
       topic_name: topic.topic_name,
