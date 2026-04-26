@@ -9,6 +9,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [childName, setChildName] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [grade, setGrade] = useState<number>(3);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -19,13 +21,11 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
 
-    // Create auth account — child_name passed via metadata
-    // DB trigger auto-creates student profile
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { child_name: childName },
+        data: { child_name: childName, grade, nickname },
       },
     });
 
@@ -35,9 +35,24 @@ export default function RegisterPage() {
       return;
     }
 
-    // If email confirmation is required, show message
+    // If email confirmation required, student row will be created on first login;
+    // for now create it eagerly when we have a session.
+    if (authData.user && authData.session) {
+      const { error: studentErr } = await supabase.from("students").insert({
+        id: authData.user.id,
+        parent_id: authData.user.id,
+        name: childName,
+        grade,
+        username: nickname || null,
+        series: "canh_dieu",
+      });
+      if (studentErr) {
+        // Non-fatal — log and continue. Layout will show empty state.
+        console.error("student insert failed:", studentErr);
+      }
+    }
+
     if (authData.user && !authData.session) {
-      setError("");
       alert("Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.");
       router.push("/login");
       return;
@@ -51,9 +66,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary-100 to-primary-50 p-4">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-lg p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-primary-600">
-            Toán Vui 3
-          </h1>
+          <h1 className="text-3xl font-extrabold text-primary-600">Toán Vui</h1>
           <p className="text-gray-500 mt-2">Tạo tài khoản mới cho bé</p>
         </div>
 
@@ -70,6 +83,42 @@ export default function RegisterPage() {
               placeholder="Ví dụ: Minh Anh"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Biệt danh trong bảng xếp hạng
+            </label>
+            <input
+              type="text"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none text-lg"
+              placeholder="Ví dụ: Sao Bắc Cực"
+              maxLength={30}
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Tên hiển thị trên bảng xếp hạng tuần. Để bảo vệ trẻ em, không hiện
+              tên thật.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Bé đang học lớp
+            </label>
+            <select
+              value={grade}
+              onChange={(e) => setGrade(Number(e.target.value))}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none text-lg bg-white"
+              required
+            >
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((g) => (
+                <option key={g} value={g}>
+                  Lớp {g}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

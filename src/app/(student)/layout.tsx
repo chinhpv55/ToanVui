@@ -17,6 +17,7 @@ export default function StudentLayout({
     useStudentStore();
   const supabase = createClient();
   const [soundOff, setSoundOff] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Preload sounds on mount
   useEffect(() => {
@@ -36,15 +37,17 @@ export default function StudentLayout({
       } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data } = await supabase
-        .from("students")
-        .select("*")
-        .eq("parent_id", user.id)
-        .single();
+      const [{ data: studentRow }, { data: account }] = await Promise.all([
+        supabase.from("students").select("*").eq("parent_id", user.id).single(),
+        supabase
+          .from("user_accounts")
+          .select("is_admin")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+      ]);
 
-      if (data) {
-        setStudent(data);
-      }
+      if (studentRow) setStudent(studentRow);
+      if (account?.is_admin) setIsAdmin(true);
     }
     loadStudent();
   }, [supabase, setStudent]);
@@ -81,6 +84,15 @@ export default function StudentLayout({
             >
               {isParentMode ? "Bé" : "Ba/Mẹ"}
             </button>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="text-xs text-primary-600 hover:text-primary-800 px-2 py-1 font-semibold"
+                title="Trang quản trị"
+              >
+                🛠️
+              </Link>
+            )}
           </div>
         </div>
       </header>
@@ -104,6 +116,13 @@ export default function StudentLayout({
           >
             <span className="text-xl">📚</span>
             <span className="text-xs font-semibold">Bài học</span>
+          </Link>
+          <Link
+            href="/leaderboard"
+            className="flex flex-col items-center py-1 px-3 text-gray-500 hover:text-primary-600 touch-target"
+          >
+            <span className="text-xl">🌌</span>
+            <span className="text-xs font-semibold">Xếp hạng</span>
           </Link>
           <Link
             href="/profile"
