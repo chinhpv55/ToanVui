@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClaudeClient, pickModelForGrade } from "@/lib/claude/client";
-import { BATCH_SYSTEM_PROMPT, buildBatchExercisePrompt } from "@/lib/claude/prompts";
+import { buildBatchSystemPrompt, buildBatchExercisePrompt } from "@/lib/claude/prompts";
 import { parseExerciseArrayResponse } from "@/lib/claude/parser";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { DifficultyLevel } from "@/types/database";
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
 
     const { data: topic, error: topicErr } = await supabase
       .from("curriculum_topics")
-      .select("ai_prompt_template, topic_name, grade")
+      .select("ai_prompt_template, topic_name, grade, series")
       .eq("id", topic_id)
       .single();
     if (topicErr || !topic) {
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
             claude.messages.create({
               model,
               max_tokens: 350 * BATCH_SIZE,
-              system: BATCH_SYSTEM_PROMPT,
+              system: buildBatchSystemPrompt(topic.grade, topic.series),
               messages: [{ role: "user", content: userPrompt }],
             }),
             25000

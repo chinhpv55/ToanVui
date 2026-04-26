@@ -5,6 +5,31 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.3.0] — 2026-04-26
+
+**Đợt 4 — Mở rộng curriculum: Lớp 3 KNTT + Lớp 4 (CD/KNTT) + Lớp 5 (CD/KNTT)**
+
+### Thêm
+- **Cột `level_tag`** (`co_ban` | `nang_cao`) trên `curriculum_topics` để phân loại đề SGK chuẩn vs đề luyện thi HSG / tư duy logic. Tất cả topic hiện có default `co_ban`; sau này admin có thể thêm topic `nang_cao`.
+- **Đa-bộ-sách / đa-lớp**: app giờ dạy được toán **lớp 3-5 cho cả Cánh Diều và Kết nối tri thức**. Form đăng ký đã có dropdown lớp 1-9, nay user thực sự có nội dung phù hợp khi chọn lớp 3-5.
+- ~190 topic mới chia 5 chương trình:
+  - Lớp 3 KNTT (~46 topic) — bộ song song với CD lớp 3 đã có
+  - Lớp 4 Cánh Diều (~51 topic) — 4 phần SGK (Số tự nhiên, Phép tính STN, Phân số, Phép tính phân số)
+  - Lớp 4 KNTT (~46 topic) — 13 chủ đề SGK
+  - Lớp 5 Cánh Diều (~46 topic) — Số thập phân, Tỉ số phần trăm, Hình học, Vận tốc
+  - Lớp 5 KNTT (~39 topic)
+
+### Sửa / Tối ưu
+- **Prompts đa-grade/series**: `BATCH_SYSTEM_PROMPT` chuyển từ hardcode "lớp 3 Cánh Diều" sang `buildBatchSystemPrompt(grade, series)` động. Claude giờ sinh đề khớp đúng SGK của bé.
+- `/api/generate-exercise` và `/api/admin/seed-bank` đều fetch + truyền `topic.series` qua prompt.
+
+### Hạ tầng
+- Migration `007_seed_grade_4_5.sql`: schema upgrade (level_tag) + seed lớp 3 KNTT + lớp 4 (CD + KNTT).
+- Migration `008_seed_grade_5.sql`: seed lớp 5 (CD + KNTT).
+- Bỏ qua các bài "Luyện tập"/"Ôn tập" thuần để bank gọn (AI tự xoay quanh chủ đề chính, đỡ trùng).
+
+---
+
 ## [1.2.0] — 2026-04-26
 
 **Đợt 3 — Kho bài tập (cache) + chia model theo cấp**

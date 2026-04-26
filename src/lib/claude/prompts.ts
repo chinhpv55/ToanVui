@@ -1,6 +1,19 @@
-import { DifficultyLevel, QuestionType } from "@/types/database";
+import { DifficultyLevel, QuestionType, SeriesType } from "@/types/database";
 
-export const SYSTEM_PROMPT = `Bạn là trợ lý sinh bài tập Toán lớp 3 Việt Nam, bộ sách Cánh Diều.
+const SERIES_NAME: Record<SeriesType, string> = {
+  canh_dieu: "Cánh Diều",
+  kntt: "Kết nối tri thức",
+  chan_troi: "Chân trời sáng tạo",
+};
+
+function seriesLabel(series: SeriesType): string {
+  return SERIES_NAME[series] ?? "SGK";
+}
+
+// One-shot prompt (legacy, single exercise per call). Kept for the explain-error
+// path which still uses single-shot generation.
+export function buildSystemPrompt(grade: number, series: SeriesType): string {
+  return `Bạn là trợ lý sinh bài tập Toán lớp ${grade} Việt Nam, bộ sách ${seriesLabel(series)}.
 Nhiệm vụ: sinh đúng 1 câu hỏi theo yêu cầu.
 Trả về JSON duy nhất, KHÔNG có text giải thích, KHÔNG có markdown backticks.
 Schema: { "question": string, "answer": string, "question_type": "fill_blank"|"multiple_choice"|"drag_drop", "choices": array|null, "hint": string }
@@ -9,8 +22,11 @@ Với fill_blank: choices là null.
 Đảm bảo answer luôn là chuỗi (string), kể cả khi là số.
 QUAN TRỌNG: hint chỉ gợi ý cách giải (ví dụ: "Nhớ bảng nhân 9" hoặc "Cộng từ hàng đơn vị"), TUYỆT ĐỐI KHÔNG được chứa đáp án hoặc kết quả phép tính.
 BẮT BUỘC: Mỗi câu hỏi phải dùng số và cách hỏi KHÁC HOÀN TOÀN với danh sách "Đã dùng" bên dưới.`;
+}
 
-export const BATCH_SYSTEM_PROMPT = `Bạn là trợ lý sinh bài tập Toán lớp 3 Việt Nam, bộ sách Cánh Diều.
+// Batch prompt (current main flow): asks Claude for a JSON array of N exercises.
+export function buildBatchSystemPrompt(grade: number, series: SeriesType): string {
+  return `Bạn là trợ lý sinh bài tập Toán lớp ${grade} Việt Nam, bộ sách ${seriesLabel(series)}.
 Nhiệm vụ: sinh ĐÚNG SỐ LƯỢNG câu hỏi được yêu cầu, mỗi câu một độ khó / cách hỏi khác nhau.
 Trả về JSON ARRAY duy nhất (KHÔNG bọc object, KHÔNG markdown), mỗi phần tử có schema:
 { "question": string, "answer": string, "question_type": "fill_blank"|"multiple_choice"|"drag_drop", "choices": array|null, "hint": string }
@@ -19,6 +35,12 @@ Với fill_blank: choices là null.
 answer luôn là chuỗi, kể cả khi là số.
 hint chỉ gợi ý cách giải, TUYỆT ĐỐI KHÔNG chứa đáp án/kết quả phép tính.
 BẮT BUỘC: các câu trong cùng một mảng phải KHÁC NHAU hoàn toàn về số và cách hỏi.`;
+}
+
+// Backwards-compat constants — defaults to grade 3 Cánh Diều. New code should
+// call buildBatchSystemPrompt(grade, series) directly.
+export const SYSTEM_PROMPT = buildSystemPrompt(3, "canh_dieu");
+export const BATCH_SYSTEM_PROMPT = buildBatchSystemPrompt(3, "canh_dieu");
 
 export const BATCH_SLOT_HINTS = [
   "Dùng số nhỏ (1–3) hoặc bài toán đơn giản nhất của chủ đề này.",
@@ -28,10 +50,14 @@ export const BATCH_SLOT_HINTS = [
   "Dùng bài toán có lời văn thực tế (đồ vật, con vật, học sinh...) liên quan chủ đề.",
 ];
 
-export const EXPLANATION_SYSTEM_PROMPT = `Bạn là trợ lý giải thích Toán cho bé lớp 3 Việt Nam.
+export function buildExplanationSystemPrompt(grade: number): string {
+  return `Bạn là trợ lý giải thích Toán cho bé lớp ${grade} Việt Nam.
 Khi bé trả lời sai, hãy giải thích bằng ngôn ngữ thật đơn giản, vui, và dùng ví dụ bằng đồ vật quen thuộc (kẹo, bút, đồ chơi).
 Đừng chỉ nói đáp án — hãy dẫn dắt bé tự nghĩ ra.
 Tối đa 3 câu ngắn gọn. Không dùng markdown.`;
+}
+
+export const EXPLANATION_SYSTEM_PROMPT = buildExplanationSystemPrompt(3);
 
 export function buildExercisePrompt(
   template: string,

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClaudeClient, pickModelForGrade } from "@/lib/claude/client";
-import { BATCH_SYSTEM_PROMPT, buildBatchExercisePrompt } from "@/lib/claude/prompts";
+import { buildBatchSystemPrompt, buildBatchExercisePrompt } from "@/lib/claude/prompts";
 import { parseExerciseArrayResponse } from "@/lib/claude/parser";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
@@ -9,6 +9,7 @@ import {
   buildAccessDeniedPayload,
 } from "@/lib/userAccount";
 import { ExerciseRequest, GeneratedExercise } from "@/types/exercise";
+import { SeriesType } from "@/types/database";
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
     // ─── Fetch topic (need template + grade for model picker) ───
     const { data: topic, error: topicErr } = await supabase
       .from("curriculum_topics")
-      .select("ai_prompt_template, topic_name, grade")
+      .select("ai_prompt_template, topic_name, grade, series")
       .eq("id", topic_id)
       .single();
 
@@ -101,6 +102,7 @@ export async function POST(request: NextRequest) {
         question_type,
         missing,
         topic.grade,
+        topic.series,
         topic_id
       );
       exercises.push(...fresh);
@@ -160,6 +162,7 @@ async function generateAndStoreFresh(
   questionType: ExerciseRequest["question_type"],
   n: number,
   grade: number,
+  series: SeriesType,
   topicId: string
 ): Promise<GeneratedExercise[]> {
   const claude = getClaudeClient();
@@ -172,7 +175,7 @@ async function generateAndStoreFresh(
       claude.messages.create({
         model,
         max_tokens: 350 * n,
-        system: BATCH_SYSTEM_PROMPT,
+        system: buildBatchSystemPrompt(grade, series),
         messages: [{ role: "user", content: userPrompt }],
       }),
       20000

@@ -4,6 +4,7 @@ export type SkillType = "so_hoc" | "hinh_hoc" | "do_luong" | "toan_do" | "bieu_t
 export type MasteryLevel = "not_started" | "learning" | "practicing" | "mastered";
 export type DifficultyLevel = "easy" | "medium" | "hard";
 export type QuestionType = "fill_blank" | "multiple_choice" | "drag_drop";
+export type LevelTag = "co_ban" | "nang_cao";
 
 export interface CurriculumTopic {
   id: string;
@@ -24,6 +25,7 @@ export interface CurriculumTopic {
     medium: { description: string; number_range?: number[] };
     hard: { description: string; number_range?: number[] };
   };
+  level_tag: LevelTag;
   created_at: string;
 }
 
