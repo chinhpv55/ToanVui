@@ -5,6 +5,14 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.4.1] — 2026-04-26
+
+### Thêm
+- **Trang `/admin/notify`** — admin paste danh sách email + tiêu đề + nội dung → click Gửi. Dùng Gmail SMTP (nodemailer) + App Password lưu ở env `GMAIL_APP_PASSWORD` / `GMAIL_FROM`. Limit 200 email/lần gọi, 500/ngày (Gmail quota cá nhân).
+- Link "Gửi mail" thêm vào navbar admin.
+
+---
+
 ## [1.4.0] — 2026-04-26
 
 **Đợt 5 — Đăng nhập bằng Google**
