@@ -5,6 +5,14 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.3.6] — 2026-04-26
+
+### Debug
+- Sửa `api_version` literal "1.3.4" → "1.3.6" (em quên update ở v1.3.5).
+- Thêm `raw_length` (độ dài full response) và `raw_end` (300 ký tự cuối) vào response → biết rõ Haiku có bị truncate không, và nếu có thì cuối cùng dừng ở đâu.
+
+---
+
 ## [1.3.5] — 2026-04-26
 
 ### Fix

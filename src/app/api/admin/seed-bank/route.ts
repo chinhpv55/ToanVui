@@ -81,10 +81,13 @@ export async function POST(request: NextRequest) {
 
     let totalCalls = 0;
     const results: DifficultyResult[] = [];
-    // Debug: capture first 500 chars of the first Claude raw response so the
-    // admin panel Network tab can see exactly what's coming back when the
-    // parser returns 0 exercises.
+    // Debug: capture the first Claude raw response so the admin panel
+    // Network tab can see exactly what's coming back when the parser
+    // returns 0 exercises. We capture preview (start), length, and end
+    // separately because seeing both ends helps detect truncation.
     let rawPreview: string | undefined;
+    let rawLength: number | undefined;
+    let rawEnd: string | undefined;
 
     for (const difficulty of DIFFICULTIES) {
       // Count current items in bank for this (topic, difficulty)
@@ -124,6 +127,8 @@ export async function POST(request: NextRequest) {
             message.content[0].type === "text" ? message.content[0].text : "";
           if (rawPreview === undefined) {
             rawPreview = text.slice(0, 1500);
+            rawLength = text.length;
+            rawEnd = text.slice(-300);
           }
           fresh = parseExerciseArrayResponse(text);
           if (fresh.length === 0) {
@@ -188,7 +193,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      api_version: "1.3.4",
+      api_version: "1.3.6",
       topic_id,
       topic_name: topic.topic_name,
       grade: topic.grade,
@@ -196,7 +201,9 @@ export async function POST(request: NextRequest) {
       total_ai_calls: totalCalls,
       results,
       truncated: totalCalls >= MAX_CALLS_PER_REQUEST,
-      raw_preview: rawPreview ?? null, // Debug: first 500 chars of first Claude response (null if no call)
+      raw_preview: rawPreview ?? null,
+      raw_length: rawLength ?? null,
+      raw_end: rawEnd ?? null,
     });
   } catch (err) {
     console.error("seed-bank error:", err);
