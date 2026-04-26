@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useStudentStore } from "@/stores/studentStore";
 import StarCounter from "@/components/ui/StarCounter";
 import StreakBadge from "@/components/ui/StreakBadge";
+import VersionFooter from "@/components/ui/VersionFooter";
 import Link from "next/link";
 import { preloadSounds, setMuted } from "@/lib/sound";
 
@@ -98,7 +99,10 @@ export default function StudentLayout({
       </header>
 
       {/* Main content */}
-      <main className="max-w-lg mx-auto">{children}</main>
+      <main className="max-w-lg mx-auto">
+        {children}
+        <VersionFooter />
+      </main>
 
       {/* Bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
