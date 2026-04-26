@@ -5,6 +5,15 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.3.11] — 2026-04-26
+
+### Fix
+- **504 timeout còn sót sau v1.3.10** ở topic prompt dài / Claude lag: lý do là 3 burst Promise.all **tuần tự** → mỗi burst đợi call chậm nhất, 3 burst cộng dồn dễ vượt 60s. Giờ **gộp 21 calls vào 1 Promise.all phẳng** → wall time = call chậm nhất duy nhất (~15-25s), không cộng dồn theo difficulty.
+- Tag mỗi promise với `difficulty` để re-group sau khi Promise.all xong.
+- Parallel-count `before` cho cả 3 difficulty ngay từ đầu (3 query cùng lúc thay vì tuần tự).
+
+---
+
 ## [1.3.10] — 2026-04-26
 
 ### Fix / Tối ưu

@@ -89,8 +89,6 @@ export async function POST(request: NextRequest) {
     const claude = getClaudeClient();
     const model = pickModelForGrade(topic.grade);
 
-    let totalCalls = 0;
-    const results: DifficultyResult[] = [];
     // Debug: capture the first non-empty Claude raw response across all
     // difficulties so the admin panel Network tab can see exactly what's
     // coming back. Preview (start), length, end aid truncation diagnosis.
@@ -98,40 +96,35 @@ export async function POST(request: NextRequest) {
     let rawLength: number | undefined;
     let rawEnd: string | undefined;
 
-    for (const difficulty of DIFFICULTIES) {
-      const { count: beforeCount } = await supabase
-        .from("exercise_bank")
-        .select("*", { count: "exact", head: true })
-        .eq("topic_id", topic_id)
-        .eq("difficulty", difficulty);
+    // Step 1: parallel-count current bank for all 3 difficulties.
+    const beforeCounts = await Promise.all(
+      DIFFICULTIES.map(async (difficulty) => {
+        const { count } = await supabase
+          .from("exercise_bank")
+          .select("*", { count: "exact", head: true })
+          .eq("topic_id", topic_id)
+          .eq("difficulty", difficulty);
+        return { difficulty, before: count ?? 0 };
+      })
+    );
 
-      const before = beforeCount ?? 0;
+    const systemPrompt = buildBatchSystemPrompt(topic.grade, topic.series);
 
-      // Skip if already at/over target for this difficulty.
-      if (before >= targetPerDiff) {
-        results.push({
-          difficulty,
-          before,
-          parsed: 0,
-          added: 0,
-          after: before,
-          ai_calls: 0,
-        });
-        continue;
-      }
-
+    // Step 2: build flat call list. Each difficulty contributes BURST_SIZE
+    // parallel calls UNLESS already at/over target. Tagging each promise
+    // with its difficulty lets us re-group results after Promise.all.
+    type Tagged = { difficulty: DifficultyLevel; text: string | null };
+    const flatCalls: Promise<Tagged>[] = [];
+    for (const { difficulty, before } of beforeCounts) {
+      if (before >= targetPerDiff) continue;
       const userPrompt = buildBatchExercisePrompt(
         topic.ai_prompt_template,
         difficulty,
         "fill_blank",
         BATCH_SIZE
       );
-      const systemPrompt = buildBatchSystemPrompt(topic.grade, topic.series);
-
-      // Fire BURST_SIZE Claude calls in parallel. Each rejection becomes null.
-      const calls: Promise<string | null>[] = Array.from(
-        { length: BURST_SIZE },
-        () =>
+      for (let i = 0; i < BURST_SIZE; i++) {
+        flatCalls.push(
           withTimeout(
             claude.messages.create({
               model,
@@ -141,32 +134,50 @@ export async function POST(request: NextRequest) {
             }),
             25000
           )
-            .then((m) => (m.content[0].type === "text" ? m.content[0].text : ""))
-            .catch((e) => {
+            .then(
+              (m): Tagged => ({
+                difficulty,
+                text: m.content[0].type === "text" ? m.content[0].text : "",
+              })
+            )
+            .catch((e): Tagged => {
               console.error(
                 "seed-bank Claude call failed:",
                 e instanceof Error ? e.message : String(e),
                 `topic=${topic.topic_name} diff=${difficulty} model=${model}`
               );
-              return null;
+              return { difficulty, text: null };
             })
-      );
-      const texts = await Promise.all(calls);
-      totalCalls += BURST_SIZE;
-      const aiCalls = BURST_SIZE;
-
-      // Parse all responses, accumulate exercises, capture first valid raw.
-      const fresh: GeneratedExercise[] = [];
-      for (const text of texts) {
-        if (!text) continue;
-        if (rawPreview === undefined) {
-          rawPreview = text.slice(0, 1500);
-          rawLength = text.length;
-          rawEnd = text.slice(-300);
-        }
-        fresh.push(...parseExerciseArrayResponse(text));
+        );
       }
+    }
+
+    // Step 3: ONE Promise.all for ALL difficulties. Total wall time ≈ slowest
+    // single Claude call (~10-20s typical), not sum across difficulties.
+    const tagged = await Promise.all(flatCalls);
+    const totalCalls = flatCalls.length;
+
+    // Step 4: group parsed exercises by difficulty.
+    const freshByDiff = new Map<DifficultyLevel, GeneratedExercise[]>();
+    for (const t of tagged) {
+      if (!t.text) continue;
+      if (rawPreview === undefined) {
+        rawPreview = t.text.slice(0, 1500);
+        rawLength = t.text.length;
+        rawEnd = t.text.slice(-300);
+      }
+      const list = freshByDiff.get(t.difficulty) ?? [];
+      list.push(...parseExerciseArrayResponse(t.text));
+      freshByDiff.set(t.difficulty, list);
+    }
+
+    // Step 5: insert per difficulty (sequential to avoid Postgres deadlocks
+    // on the same unique index, but each insert is fast).
+    const results: DifficultyResult[] = [];
+    for (const { difficulty, before } of beforeCounts) {
+      const fresh = freshByDiff.get(difficulty) ?? [];
       const parsed = fresh.length;
+      const aiCalls = before >= targetPerDiff ? 0 : BURST_SIZE;
 
       let added = 0;
       if (fresh.length > 0) {
@@ -195,24 +206,18 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      const { count: afterCount } = await supabase
-        .from("exercise_bank")
-        .select("*", { count: "exact", head: true })
-        .eq("topic_id", topic_id)
-        .eq("difficulty", difficulty);
-
       results.push({
         difficulty,
         before,
         parsed,
         added,
-        after: afterCount ?? before + added,
+        after: before + added,
         ai_calls: aiCalls,
       });
     }
 
     return NextResponse.json({
-      api_version: "1.3.10",
+      api_version: "1.3.11",
       parser_version: PARSER_VERSION,
       topic_id,
       topic_name: topic.topic_name,
