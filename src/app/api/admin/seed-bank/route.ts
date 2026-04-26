@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     }
 
     const claude = getClaudeClient();
-    const model = pickModelForGrade(topic.grade);
+    const model = pickModelForGrade(topic.grade, "seed");
 
     // Debug: capture the first non-empty Claude raw response across all
     // difficulties so the admin panel Network tab can see exactly what's

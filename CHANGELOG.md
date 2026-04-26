@@ -5,6 +5,17 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.4.3] — 2026-04-26
+
+### Cải thiện
+- **Seed bank dùng Sonnet 4.6** cho mọi lớp (kể cả 1-5). Lý do: Haiku có pass-rate parser+dedup thấp ở topic chuyển động (Vận tốc, Quãng đường, Chuyển động đều) và biểu đồ — Sonnet sinh đa dạng hơn, fill kho trong ít call hơn. Runtime vẫn dùng Haiku cho lớp 1-5 (tiết kiệm ~12x cho mỗi lượt học sinh).
+- **`pickModelForGrade(grade, mode)`** — thêm tham số `mode: "runtime" | "seed"`, default `"runtime"`. Chỉ `/api/admin/seed-bank` truyền `"seed"`.
+
+### Thêm
+- **`scripts/benchmark-bank.ts`** — script đo latency query `exercise_bank`. Chạy `npx tsx scripts/benchmark-bank.ts` từ thư mục `app/`. Đo từ laptop: p50 ~160ms, p95 ~183ms.
+
+---
+
 ## [1.4.2] — 2026-04-26
 
 ### Thêm

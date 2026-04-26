@@ -18,7 +18,14 @@ export function getClaudeClient(): Anthropic {
 // Pick the right model for the topic's grade level.
 //   Grade 1-5: Haiku 4.5  — ~12x cheaper, plenty for elementary arithmetic.
 //   Grade 6-9: Sonnet 4.6 — better reasoning for algebra/geometry word problems.
-export function pickModelForGrade(grade: number): string {
+//
+// `mode="seed"` forces Sonnet for ALL grades. Seeding is a one-time admin
+// cost — Sonnet's higher pass-rate on parser+dedup fills the bank in fewer
+// calls. Runtime requests still use the cheap Haiku for grade 1-5.
+export type ModelMode = "runtime" | "seed";
+
+export function pickModelForGrade(grade: number, mode: ModelMode = "runtime"): string {
+  if (mode === "seed") return "claude-sonnet-4-6";
   if (grade <= 5) return "claude-haiku-4-5-20251001";
   return "claude-sonnet-4-6";
 }
