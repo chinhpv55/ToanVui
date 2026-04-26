@@ -1,12 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 export default function LoginPage() {
+  // useSearchParams() forces dynamic rendering and must sit inside
+  // a Suspense boundary, otherwise Next.js fails the prod build.
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary-100 to-primary-50">
+          <p className="text-gray-500">Đang tải...</p>
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
