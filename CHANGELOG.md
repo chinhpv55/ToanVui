@@ -5,6 +5,13 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.3.3] — 2026-04-26
+
+### Debug
+- **`/api/admin/seed-bank`** trả thêm field `raw_preview` (500 ký tự đầu của response Claude lần đầu) khi parser ra 0 câu. Nhìn ở Network tab admin/bank để biết Haiku 4.5 đang trả về gì → fix triệt để.
+
+---
+
 ## [1.3.2] — 2026-04-26
 
 ### Fix

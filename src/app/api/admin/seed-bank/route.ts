@@ -80,6 +80,10 @@ export async function POST(request: NextRequest) {
 
     let totalCalls = 0;
     const results: DifficultyResult[] = [];
+    // Debug: capture first 500 chars of the first Claude raw response so the
+    // admin panel Network tab can see exactly what's coming back when the
+    // parser returns 0 exercises.
+    let rawPreview: string | undefined;
 
     for (const difficulty of DIFFICULTIES) {
       // Count current items in bank for this (topic, difficulty)
@@ -117,6 +121,9 @@ export async function POST(request: NextRequest) {
           );
           const text =
             message.content[0].type === "text" ? message.content[0].text : "";
+          if (rawPreview === undefined) {
+            rawPreview = text.slice(0, 500);
+          }
           fresh = parseExerciseArrayResponse(text);
           if (fresh.length === 0) {
             console.warn(
@@ -187,6 +194,7 @@ export async function POST(request: NextRequest) {
       total_ai_calls: totalCalls,
       results,
       truncated: totalCalls >= MAX_CALLS_PER_REQUEST,
+      raw_preview: rawPreview, // Debug: first 500 chars of first Claude response
     });
   } catch (err) {
     console.error("seed-bank error:", err);
