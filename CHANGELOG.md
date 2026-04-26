@@ -5,6 +5,26 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.4.0] — 2026-04-26
+
+**Đợt 5 — Đăng nhập bằng Google**
+
+### Thêm
+- **Google OAuth** trên trang `/login` và `/register`. Phụ huynh dùng Gmail click 1 nút là vào, không phải nhớ mật khẩu, đỡ spam đăng ký rác (Google đã verify email sẵn).
+- **`/auth/callback`** route handler exchange code → session → điều hướng theo trạng thái: có `students` row → `/home`, chưa có → `/register/complete`.
+- **`/register/complete`** trang hoàn tất hồ sơ bé (tên, biệt danh, lớp) cho user lần đầu login Google. Email/password user vẫn nhập trực tiếp ở `/register` như cũ.
+- Component `GoogleSignInButton` dùng chung 2 trang (logo G màu Google chuẩn).
+
+### Sửa
+- Middleware allow `/auth/...` paths để OAuth callback chạy được trước khi có session cookie.
+
+### Yêu cầu cấu hình
+- Google Cloud Console: tạo OAuth Client (Web), thêm `https://<project>.supabase.co/auth/v1/callback` vào Authorized redirect URIs.
+- Supabase Dashboard → Auth → Providers → Google: paste Client ID + Secret, toggle ON.
+- App ở "Testing" status: phải thêm email vào Audience > Test users mới login Google được (cap 100 user).
+
+---
+
 ## [1.3.11] — 2026-04-26
 
 ### Fix

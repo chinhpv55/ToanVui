@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -11,6 +12,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const oauthError = searchParams.get("oauth_error");
   const supabase = createClient();
 
   async function handleLogin(e: React.FormEvent) {
@@ -84,6 +87,20 @@ export default function LoginPage() {
             {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
         </form>
+
+        <div className="flex items-center gap-3 my-6">
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="text-xs text-gray-400">HOẶC</span>
+          <div className="flex-1 h-px bg-gray-200" />
+        </div>
+
+        <GoogleSignInButton label="Đăng nhập với Google" />
+
+        {oauthError && (
+          <p className="text-error-500 text-sm text-center mt-3">
+            Lỗi đăng nhập Google: {oauthError}
+          </p>
+        )}
 
         <p className="text-center mt-6 text-gray-500">
           Chưa có tài khoản?{" "}

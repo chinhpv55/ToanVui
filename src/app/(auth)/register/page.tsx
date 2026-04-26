@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -162,6 +163,17 @@ export default function RegisterPage() {
             {loading ? "Đang tạo..." : "Đăng ký"}
           </button>
         </form>
+
+        <div className="flex items-center gap-3 my-6">
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="text-xs text-gray-400">HOẶC</span>
+          <div className="flex-1 h-px bg-gray-200" />
+        </div>
+
+        <GoogleSignInButton label="Đăng ký với Google" />
+        <p className="text-xs text-gray-400 text-center mt-2">
+          Sau khi đăng nhập Google, bạn sẽ điền thêm hồ sơ cho bé.
+        </p>
 
         <p className="text-center mt-6 text-gray-500">
           Đã có tài khoản?{" "}
