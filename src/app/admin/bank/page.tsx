@@ -25,6 +25,7 @@ interface SeedResult {
   results: Array<{
     difficulty: "easy" | "medium" | "hard";
     before: number;
+    parsed: number;
     added: number;
     after: number;
     ai_calls: number;
@@ -105,6 +106,13 @@ export default function AdminBankPage() {
       try {
         const result = await seedOne(t.topic_id);
         const added = result.results.reduce((s, r) => s + r.added, 0);
+        const parsed = result.results.reduce((s, r) => s + r.parsed, 0);
+        const note =
+          parsed > 0 && added === 0
+            ? ` ⚠ parser=${parsed} nhưng insert=0 (kiểm tra RLS)`
+            : parsed > added
+            ? ` (parser=${parsed}, dedup ${parsed - added})`
+            : "";
         setBulkProgress((prev) =>
           prev
             ? {
@@ -112,7 +120,7 @@ export default function AdminBankPage() {
                 current: i + 1,
                 log: [
                   ...prev.log,
-                  `✓ ${t.topic_name}: +${added} câu (${result.total_ai_calls} AI calls)`,
+                  `✓ ${t.topic_name}: +${added} câu (${result.total_ai_calls} AI calls)${note}`,
                 ],
               }
             : null

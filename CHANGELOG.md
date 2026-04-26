@@ -5,6 +5,21 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.3.8] — 2026-04-26
+
+### Fix
+- **Bank seed `added=0` (root cause)**: Migration 006 bật RLS cho `exercise_bank` nhưng chỉ tạo policy SELECT, **không có policy INSERT/UPDATE/DELETE**. Hậu quả: mọi `upsert` từ `/api/admin/seed-bank` bị Postgres âm thầm filter bởi RLS, return `count=0` → kho luôn 0 câu dù parser, prompt, model, version đều đúng. Migration `009_exercise_bank_admin_write.sql` thêm 3 policy cho admin.
+- **Insert count đáng tin**: bỏ phụ thuộc vào `count: "exact"` (không ổn định khi `ignoreDuplicates: true`), thay bằng `.select("id")` rồi đếm `data.length`.
+
+### Thêm
+- Response `/api/admin/seed-bank` thêm field `parsed` (số câu parser trả ra trước khi insert) bên cạnh `added` (số rows thực sự vào DB). Giúp tách bạch lỗi parser vs lỗi DB ngay từ Network tab.
+- Bulk seed log hiển thị cảnh báo `⚠ parser=N nhưng insert=0` khi parser ra câu mà DB không nhận.
+
+### Hành động cần làm
+- Anh chạy migration `009_exercise_bank_admin_write.sql` trên Supabase Dashboard (SQL Editor), sau đó vào `/admin/bank` bấm "Seed tất cả" — phải thấy added > 0.
+
+---
+
 ## [1.3.7] — 2026-04-26
 
 ### Debug

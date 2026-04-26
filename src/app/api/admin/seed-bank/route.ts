@@ -20,7 +20,8 @@ interface SeedRequest {
 interface DifficultyResult {
   difficulty: DifficultyLevel;
   before: number;
-  added: number;
+  parsed: number; // exercises parser returned (before insert)
+  added: number;  // rows actually inserted (after RLS + dedup)
   after: number;
   ai_calls: number;
 }
@@ -98,6 +99,7 @@ export async function POST(request: NextRequest) {
         .eq("difficulty", difficulty);
 
       const before = beforeCount ?? 0;
+      let parsed = 0;
       let added = 0;
       let aiCalls = 0;
 
@@ -148,6 +150,7 @@ export async function POST(request: NextRequest) {
         totalCalls++;
 
         if (fresh.length === 0) break;
+        parsed += fresh.length;
 
         const rows = fresh.map((q) => ({
           topic_id,
@@ -159,20 +162,23 @@ export async function POST(request: NextRequest) {
           hint: q.hint ?? null,
         }));
 
-        // Insert with onConflict to skip duplicates (unique idx by question_norm)
-        const { count: insertCount, error: insertErr } = await supabase
+        // Insert with onConflict to skip duplicates (unique idx by question_norm).
+        // Use .select() so we get back the actual inserted rows — Supabase's
+        // count with ignoreDuplicates is unreliable, but the returned array
+        // is authoritative.
+        const { data: insertedRows, error: insertErr } = await supabase
           .from("exercise_bank")
           .upsert(rows, {
             onConflict: "topic_id,difficulty,question_norm",
             ignoreDuplicates: true,
-            count: "exact",
-          });
+          })
+          .select("id");
 
         if (insertErr) {
           console.error("seed-bank insert error:", insertErr);
           break;
         }
-        added += insertCount ?? 0;
+        added += insertedRows?.length ?? 0;
       }
 
       const { count: afterCount } = await supabase
@@ -184,6 +190,7 @@ export async function POST(request: NextRequest) {
       results.push({
         difficulty,
         before,
+        parsed,
         added,
         after: afterCount ?? before + added,
         ai_calls: aiCalls,
@@ -193,7 +200,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      api_version: "1.3.7",
+      api_version: "1.3.8",
       parser_version: PARSER_VERSION,
       topic_id,
       topic_name: topic.topic_name,
