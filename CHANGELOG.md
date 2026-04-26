@@ -5,6 +5,15 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.3.5] — 2026-04-26
+
+### Fix
+- **Parser robust**: Haiku 4.5 trả JSON wrap trong ` ```json ... ``` ` markdown. Parser cũ thỉnh thoảng strip không sạch. Giờ extract array bằng cách **find first `[` và last `]`** — bỏ qua mọi wrapper / preamble / trailing prose. Có cả nhánh khôi phục response bị truncate (đóng array tại `},` cuối cùng).
+- **max_tokens**: tăng lên 600/exercise (3000 cho batch 5) để Vietnamese hint dài không bị cắt.
+- **raw_preview**: tăng lên 1500 ký tự để debug toàn bộ response.
+
+---
+
 ## [1.3.4] — 2026-04-26
 
 ### Debug

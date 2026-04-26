@@ -1,13 +1,5 @@
 import { GeneratedExercise } from "@/types/exercise";
 
-function stripFences(raw: string): string {
-  let cleaned = raw.trim();
-  if (cleaned.startsWith("```")) {
-    cleaned = cleaned.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
-  }
-  return cleaned;
-}
-
 function validateExercise(parsed: unknown): GeneratedExercise | null {
   if (!parsed || typeof parsed !== "object") return null;
   const p = parsed as Record<string, unknown>;
@@ -34,18 +26,45 @@ function validateExercise(parsed: unknown): GeneratedExercise | null {
 }
 
 export function parseExerciseArrayResponse(raw: string): GeneratedExercise[] {
-  try {
-    let cleaned = stripFences(raw);
+  // Locate the JSON array by [ and ] regardless of any wrapper (markdown
+  // fence, preamble text, trailing prose). Robust against:
+  //   - ```json ... ``` markdown blocks
+  //   - "Here's the array: [...]" preambles
+  //   - Trailing "Hope this helps!" prose
+  //   - Truncated responses (recover at last complete object)
+  const start = raw.indexOf("[");
+  if (start === -1) {
+    console.error(
+      "parseExerciseArrayResponse: no '[' in response. Raw start:",
+      raw.slice(0, 300)
+    );
+    return [];
+  }
 
-    // Some models (esp. Haiku) prepend a sentence like "Here's the array:" or
-    // wrap output as `{ "exercises": [...] }`. Extract the first JSON array
-    // we can find as a fallback.
-    if (!cleaned.startsWith("[")) {
-      const arrayMatch = cleaned.match(/\[\s*\{[\s\S]*\}\s*\]/);
-      if (arrayMatch) cleaned = arrayMatch[0];
+  const end = raw.lastIndexOf("]");
+  let candidate: string;
+  if (end > start) {
+    candidate = raw.substring(start, end + 1);
+  } else {
+    // Truncated: try to close the array at the last complete object.
+    const tail = raw.substring(start);
+    const lastClose = tail.lastIndexOf("},");
+    if (lastClose > 0) {
+      candidate = tail.substring(0, lastClose + 1) + "]";
+      console.warn(
+        "parseExerciseArrayResponse: recovered truncated response."
+      );
+    } else {
+      console.error(
+        "parseExerciseArrayResponse: cannot recover from truncated response. Raw end:",
+        raw.slice(-200)
+      );
+      return [];
     }
+  }
 
-    const parsed = JSON.parse(cleaned);
+  try {
+    const parsed = JSON.parse(candidate);
     const arr = Array.isArray(parsed)
       ? parsed
       : Array.isArray((parsed as { exercises?: unknown }).exercises)
@@ -57,17 +76,19 @@ export function parseExerciseArrayResponse(raw: string): GeneratedExercise[] {
 
     if (out.length === 0) {
       console.error(
-        "parseExerciseArrayResponse: parsed but no valid exercises. Raw start:",
+        "parseExerciseArrayResponse: parsed but 0 valid exercises. Raw start:",
         raw.slice(0, 300)
       );
     }
     return out;
   } catch (e) {
     console.error(
-      "parseExerciseArrayResponse failed:",
+      "parseExerciseArrayResponse JSON.parse failed:",
       e instanceof Error ? e.message : String(e),
-      "Raw start:",
-      raw.slice(0, 300)
+      "Candidate start:",
+      candidate.slice(0, 200),
+      "Candidate end:",
+      candidate.slice(-200)
     );
     return [];
   }

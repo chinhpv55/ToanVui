@@ -27,6 +27,7 @@ interface DifficultyResult {
 
 const DIFFICULTIES: DifficultyLevel[] = ["easy", "medium", "hard"];
 const BATCH_SIZE = 5;            // exercises per Claude call
+const MAX_TOKENS_PER_BATCH = 600; // generous per-exercise budget for verbose Vietnamese hints
 const MAX_CALLS_PER_REQUEST = 12; // hard cap to bound cost per HTTP request
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -113,7 +114,7 @@ export async function POST(request: NextRequest) {
           const message = await withTimeout(
             claude.messages.create({
               model,
-              max_tokens: 350 * BATCH_SIZE,
+              max_tokens: MAX_TOKENS_PER_BATCH * BATCH_SIZE,
               system: buildBatchSystemPrompt(topic.grade, topic.series),
               messages: [{ role: "user", content: userPrompt }],
             }),
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
           const text =
             message.content[0].type === "text" ? message.content[0].text : "";
           if (rawPreview === undefined) {
-            rawPreview = text.slice(0, 500);
+            rawPreview = text.slice(0, 1500);
           }
           fresh = parseExerciseArrayResponse(text);
           if (fresh.length === 0) {
