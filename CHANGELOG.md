@@ -5,6 +5,13 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.3.1] — 2026-04-26
+
+### Fix
+- **Migration 007**: bỏ apostrophe trong comment header (`we're` → `we are`) khiến Supabase Dashboard SQL Editor parse nhầm, báo `syntax error at or near "Medium"`. Anh phải re-paste Chunk A.
+
+---
+
 ## [1.3.0] — 2026-04-26
 
 **Đợt 4 — Mở rộng curriculum: Lớp 3 KNTT + Lớp 4 (CD/KNTT) + Lớp 5 (CD/KNTT)**

@@ -24,7 +24,7 @@ ALTER TABLE curriculum_topics
 
 CREATE INDEX IF NOT EXISTS idx_curriculum_level_tag ON curriculum_topics(level_tag);
 
--- ── Cleanup: only the rows we're about to seed ──
+-- ── Cleanup: only the rows we are about to seed ──
 DELETE FROM curriculum_topics
  WHERE topic_code LIKE ANY (ARRAY['CD4-%', 'KN4-%', 'KN3-%']);
 
