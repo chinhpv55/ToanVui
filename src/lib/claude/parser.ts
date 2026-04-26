@@ -1,5 +1,51 @@
 import { GeneratedExercise } from "@/types/exercise";
 
+function stripFences(raw: string): string {
+  let cleaned = raw.trim();
+  if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+  }
+  return cleaned;
+}
+
+function validateExercise(parsed: unknown): GeneratedExercise | null {
+  if (!parsed || typeof parsed !== "object") return null;
+  const p = parsed as Record<string, unknown>;
+  if (!p.question || !p.answer || !p.question_type) return null;
+
+  const exercise: GeneratedExercise = {
+    question: String(p.question),
+    answer: String(p.answer),
+    question_type: p.question_type as GeneratedExercise["question_type"],
+    choices: Array.isArray(p.choices) ? (p.choices as string[]) : undefined,
+    hint: typeof p.hint === "string" ? p.hint : "",
+    visual_context:
+      typeof p.visual_context === "string" ? p.visual_context : undefined,
+  };
+
+  if (exercise.question_type === "multiple_choice") {
+    if (!exercise.choices || exercise.choices.length !== 4) return null;
+    if (!exercise.choices.includes(exercise.answer)) {
+      exercise.choices[Math.floor(Math.random() * 4)] = exercise.answer;
+    }
+  }
+
+  return exercise;
+}
+
+export function parseExerciseArrayResponse(raw: string): GeneratedExercise[] {
+  try {
+    const cleaned = stripFences(raw);
+    const parsed = JSON.parse(cleaned);
+    const arr = Array.isArray(parsed) ? parsed : [parsed];
+    return arr
+      .map(validateExercise)
+      .filter((x): x is GeneratedExercise => x !== null);
+  } catch {
+    return [];
+  }
+}
+
 export function parseExerciseResponse(raw: string): GeneratedExercise | null {
   try {
     // Strip markdown backticks if present

@@ -1,13 +1,23 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSessionStore } from "@/stores/sessionStore";
 import ExerciseShell from "@/components/exercise/ExerciseShell";
+import AccessDeniedModal from "@/components/ui/AccessDeniedModal";
+import { ADMIN_CONTACT } from "@/lib/userAccount";
+
+interface AccessDeniedPayload {
+  error: string;
+  reason: string;
+  title: string;
+  message: string;
+}
 
 export default function PracticeSessionPage() {
   const { topicId, isLoading, questions, setQuestions, setLoading } =
     useSessionStore();
   const fetchedRef = useRef(false);
+  const [denied, setDenied] = useState<AccessDeniedPayload | null>(null);
 
   useEffect(() => {
     if (!topicId || fetchedRef.current || questions.length > 0) return;
@@ -17,7 +27,8 @@ export default function PracticeSessionPage() {
       setLoading(true);
       const questionTypes = ["fill_blank", "multiple_choice"] as const;
 
-      // Fetch first 5 questions to show immediately
+      // First call — counts as 1 trial unit
+      let firstSucceeded = false;
       try {
         const res = await fetch("/api/generate-exercise", {
           method: "POST",
@@ -28,14 +39,23 @@ export default function PracticeSessionPage() {
             question_type:
               questionTypes[Math.floor(Math.random() * questionTypes.length)],
             count: 5,
+            is_session_start: true,
           }),
         });
+
+        if (res.status === 402) {
+          const payload = (await res.json()) as AccessDeniedPayload;
+          setDenied(payload);
+          setLoading(false);
+          return;
+        }
 
         if (!res.ok) throw new Error("API error");
 
         const data = await res.json();
         if (data.questions && data.questions.length > 0) {
           setQuestions(data.questions);
+          firstSucceeded = true;
         } else {
           setLoading(false);
         }
@@ -43,7 +63,8 @@ export default function PracticeSessionPage() {
         setLoading(false);
       }
 
-      // Prefetch 5 more in background → 10 total
+      // Prefetch — does NOT consume trial credit
+      if (!firstSucceeded) return;
       try {
         const res2 = await fetch("/api/generate-exercise", {
           method: "POST",
@@ -54,8 +75,10 @@ export default function PracticeSessionPage() {
             question_type:
               questionTypes[Math.floor(Math.random() * questionTypes.length)],
             count: 5,
+            is_session_start: false,
           }),
         });
+        if (res2.status === 402) return; // ignore quietly on prefetch
         const data2 = await res2.json();
         if (data2.questions) {
           const store = useSessionStore.getState();
@@ -71,7 +94,18 @@ export default function PracticeSessionPage() {
     fetchQuestions();
   }, [topicId, questions.length, setQuestions, setLoading]);
 
-  // No session started — redirect
+  if (denied) {
+    return (
+      <AccessDeniedModal
+        open={true}
+        title={denied.title}
+        message={denied.message}
+        contactZalo={ADMIN_CONTACT.zalo}
+        contactEmail={ADMIN_CONTACT.email}
+      />
+    );
+  }
+
   if (!topicId && !isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">

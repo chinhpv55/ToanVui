@@ -14,6 +14,12 @@ export interface ExerciseRequest {
   difficulty: DifficultyLevel;
   question_type: QuestionType;
   count?: number;
+  /**
+   * True when this call starts a new practice session. The trial counter
+   * is incremented only on session-start calls, so prefetch calls within
+   * the same session don't burn extra trial credit.
+   */
+  is_session_start?: boolean;
 }
 
 export interface ExerciseResult {
