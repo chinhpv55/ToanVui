@@ -7,14 +7,24 @@ const DEFAULT_SUBJECT =
 
 const DEFAULT_BODY = `Chào ba/mẹ,
 
-Tài khoản học của bé tại Toán Vui đã được kích hoạt lại. Sáng mai ba/mẹ và bé có thể vào học bình thường tại:
+Tài khoản học của bé tại Toán Vui đã được kích hoạt lại ở chế độ DÙNG THỬ.
 
-  https://vui-hoc-toan.vercel.app
+🎯 Quyền dùng thử:
+- 10 bài tập miễn phí cho bé
+- Trong vòng 7 ngày kể từ hôm nay
+(Hết một trong hai điều kiện trên là hết hạn dùng thử)
 
-Đợt cập nhật vừa rồi:
+🔗 Đăng nhập tại: https://vui-hoc-toan.vercel.app
+   Tip: bấm "Đăng nhập với Google" cho nhanh, không cần nhớ mật khẩu.
+
+✨ Đợt cập nhật mới:
 - Đăng nhập nhanh bằng Google (1 chạm)
-- Kho ~24,000 câu hỏi (Cánh Diều + Kết Nối Tri Thức, lớp 3-5)
+- Kho hàng nghìn câu hỏi sẵn (Cánh Diều + Kết Nối Tri Thức, lớp 3-5)
 - Đề luyện chuẩn SGK theo bộ sách bé đang học
+
+📞 Khi hết dùng thử, nếu ba/mẹ muốn bé học tiếp, vui lòng liên hệ:
+- Zalo: 0949908210
+- Email: chinhpv@gmail.com
 
 Cám ơn ba/mẹ đã đồng hành cùng Toán Vui.
 — Team Toán Vui`;
