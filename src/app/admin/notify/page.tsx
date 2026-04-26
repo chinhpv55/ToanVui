@@ -10,8 +10,8 @@ const DEFAULT_BODY = `Chào ba/mẹ,
 Tài khoản học của bé tại Toán Vui đã được kích hoạt lại ở chế độ DÙNG THỬ.
 
 🎯 Quyền dùng thử:
-- 10 bài tập miễn phí cho bé
-- Trong vòng 7 ngày kể từ hôm nay
+- 20 bài tập miễn phí cho bé
+- Trong vòng 14 ngày kể từ hôm nay
 (Hết một trong hai điều kiện trên là hết hạn dùng thử)
 
 🔗 Đăng nhập tại: https://vui-hoc-toan.vercel.app

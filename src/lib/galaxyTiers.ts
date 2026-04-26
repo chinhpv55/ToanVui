@@ -1,5 +1,5 @@
-// Bảng xếp hạng kiểu Brilliant — đặt tên theo các vì sao trong giải ngân hà.
-// Tier xác định bằng tổng sao đời (lifetime_stars) — càng nhiều sao càng "lớn".
+// Bảng xếp hạng — đặt tên theo các hành tinh trong Hệ Mặt Trời.
+// Tier xác định bằng tổng sao đời (lifetime_stars) — càng nhiều sao càng "xa".
 
 export interface GalaxyTier {
   name: string;
@@ -9,16 +9,16 @@ export interface GalaxyTier {
   textColor: string;
 }
 
-// Sắp xếp từ thấp lên cao; lookup sẽ chọn tier có minStars cao nhất ≤ stars
+// Sắp xếp theo khoảng cách từ Mặt Trời (gần → xa) tương ứng cấp dễ → khó.
 export const GALAXY_TIERS: GalaxyTier[] = [
-  { name: "Procyon",     emoji: "✨", minStars: 0,    color: "bg-gray-200",      textColor: "text-gray-700" },
-  { name: "Aldebaran",   emoji: "🌟", minStars: 50,   color: "bg-orange-200",    textColor: "text-orange-800" },
-  { name: "Capella",     emoji: "💫", minStars: 150,  color: "bg-yellow-200",    textColor: "text-yellow-800" },
-  { name: "Betelgeuse",  emoji: "🔆", minStars: 350,  color: "bg-red-200",       textColor: "text-red-800" },
-  { name: "Rigel",       emoji: "⭐", minStars: 700,  color: "bg-blue-200",      textColor: "text-blue-800" },
-  { name: "Polaris",     emoji: "🌠", minStars: 1200, color: "bg-indigo-200",    textColor: "text-indigo-800" },
-  { name: "Vega",        emoji: "🌌", minStars: 2000, color: "bg-purple-200",    textColor: "text-purple-800" },
-  { name: "Sirius",      emoji: "🪐", minStars: 3500, color: "bg-pink-200",      textColor: "text-pink-800" },
+  { name: "Sao Thủy",         emoji: "🌑", minStars: 0,    color: "bg-gray-200",   textColor: "text-gray-700" },
+  { name: "Sao Kim",          emoji: "🌟", minStars: 50,   color: "bg-yellow-200", textColor: "text-yellow-800" },
+  { name: "Trái Đất",         emoji: "🌍", minStars: 150,  color: "bg-blue-200",   textColor: "text-blue-800" },
+  { name: "Sao Hỏa",          emoji: "🔴", minStars: 350,  color: "bg-red-200",    textColor: "text-red-800" },
+  { name: "Sao Mộc",          emoji: "🟠", minStars: 700,  color: "bg-orange-200", textColor: "text-orange-800" },
+  { name: "Sao Thổ",          emoji: "🪐", minStars: 1200, color: "bg-amber-200",  textColor: "text-amber-800" },
+  { name: "Sao Thiên Vương",  emoji: "🌀", minStars: 2000, color: "bg-indigo-200", textColor: "text-indigo-800" },
+  { name: "Sao Hải Vương",    emoji: "💎", minStars: 3500, color: "bg-purple-200", textColor: "text-purple-800" },
 ];
 
 export function getTier(lifetimeStars: number): GalaxyTier {

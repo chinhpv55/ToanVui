@@ -173,12 +173,51 @@ p.page-sub{text-align:center;color:#64748b;font-size:14px;margin-bottom:40px}
 
 /* Watermark */
 .watermark{text-align:center;margin-top:32px;font-size:12px;color:#94a3b8;font-weight:600}
+
+/* What's new hero */
+.hero{max-width:880px;margin:0 auto 36px;background:#fff;border-radius:24px;padding:28px 32px;box-shadow:0 12px 32px rgba(30,58,138,.08);border:1px solid #dbeafe;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+@media (max-width:640px){.hero{grid-template-columns:1fr;text-align:center}}
+.hero-pill{display:inline-block;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:12px}
+.hero h2{font-size:22px;font-weight:900;color:#1e3a8a;margin-bottom:14px;line-height:1.3}
+.hero ul{list-style:none;padding:0;margin:0}
+.hero li{font-size:14px;color:#334155;line-height:1.5;padding:6px 0;display:flex;gap:8px;align-items:flex-start;font-weight:600}
+.hero li .ico{font-size:18px;flex-shrink:0}
+.cta-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:900;font-size:16px;padding:16px 28px;border-radius:16px;text-decoration:none;box-shadow:0 8px 20px rgba(34,197,94,.35);transition:transform .15s,box-shadow .15s;white-space:nowrap}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(34,197,94,.45)}
+.cta-btn .arrow{transition:transform .15s}
+.cta-btn:hover .arrow{transform:translateX(3px)}
+.cta-sub{display:block;font-size:11px;font-weight:700;color:#64748b;margin-top:10px;text-align:center}
 </style>
 </head>
 <body>
 
 <h1 class="page-title">📐 Vui Học Toán</h1>
-<p class="page-sub">Web app luyện Toán lớp 3 — Giao diện các màn hình chính</p>
+<p class="page-sub">Web app luyện Toán lớp 3-5 — Cánh Diều &amp; Kết Nối Tri Thức</p>
+
+<!-- ══════════════════════════════════════════
+     HERO — What's new + CTA
+══════════════════════════════════════════ -->
+<div class="hero">
+  <div>
+    <span class="hero-pill">✨ Cập nhật mới</span>
+    <h2>Học toán cho bé chưa bao giờ dễ đến thế</h2>
+    <ul>
+      <li><span class="ico">📚</span><span>Kho <strong>hàng nghìn câu hỏi</strong> sẵn — vào là học, không phải chờ</span></li>
+      <li><span class="ico">📘</span><span>Đầy đủ <strong>lớp 3-5</strong> cho cả Cánh Diều và Kết Nối Tri Thức</span></li>
+      <li><span class="ico">🏆</span><span>Bảng <strong>xếp hạng tuần</strong> theo các hành tinh Hệ Mặt Trời — bé thi đua mỗi ngày</span></li>
+      <li><span class="ico">🔐</span><span>Đăng nhập nhanh bằng <strong>Google</strong> — 1 chạm, không phải nhớ mật khẩu</span></li>
+    </ul>
+    <p style="font-size:13px;color:#475569;margin-top:14px;padding-top:14px;border-top:1px dashed #cbd5e1;line-height:1.5">
+      📅 <strong>Sắp tới (sau lễ 1/5):</strong> module <strong>Toán tư duy logic</strong> — câu đố trực quan, học qua khám phá, đồng thời sẵn sàng cho các sân thi Violympic, TIMO, ASMO.
+    </p>
+  </div>
+  <div>
+    <a href="https://vui-hoc-toan.vercel.app/register" class="cta-btn">
+      Đăng ký miễn phí <span class="arrow">→</span>
+    </a>
+    <span class="cta-sub">Dùng thử 14 ngày · 20 bài</span>
+  </div>
+</div>
 
 <div class="screens">
 
@@ -242,7 +281,7 @@ p.page-sub{text-align:center;color:#64748b;font-size:14px;margin-bottom:40px}
           <p>Chương 1: Các số đến 10 000</p>
         </div>
 
-        <!-- Path nodes -->
+        <!-- Path nodes — only left/right alternating, matching app layout -->
         <div class="path">
           <div class="path-row left">
             <div class="node-wrap">
@@ -251,24 +290,24 @@ p.page-sub{text-align:center;color:#64748b;font-size:14px;margin-bottom:40px}
               <div class="node-stars">★★★</div>
             </div>
           </div>
-          <div class="connector"></div>
-          <div class="path-row center">
+          <div class="connector" style="transform:rotate(20deg);height:24px"></div>
+          <div class="path-row right">
             <div class="node-wrap">
               <div class="node green current" style="box-shadow:0 0 0 5px rgba(250,204,21,.4)">🔢</div>
               <div class="node-label">So sánh số</div>
               <div class="node-stars" style="color:#fcd34d">★★☆</div>
             </div>
           </div>
-          <div class="connector"></div>
-          <div class="path-row right">
+          <div class="connector" style="transform:rotate(-20deg);height:24px"></div>
+          <div class="path-row left">
             <div class="node-wrap">
               <div class="node purple">✏️</div>
               <div class="node-label">Làm tròn số</div>
               <div class="node-stars" style="color:#e9d5ff">★☆☆</div>
             </div>
           </div>
-          <div class="connector"></div>
-          <div class="path-row center">
+          <div class="connector" style="transform:rotate(20deg);height:24px"></div>
+          <div class="path-row right">
             <div class="node-wrap">
               <div class="node locked">🔒</div>
               <div class="node-label" style="color:#cbd5e1">Cộng có nhớ</div>
@@ -546,9 +585,168 @@ p.page-sub{text-align:center;color:#64748b;font-size:14px;margin-bottom:40px}
   <div class="screen-label">5 — Danh sách bài học</div>
   </div>
 
+  <!-- ══════════════════════════════════════════
+       SCREEN 6 — LEADERBOARD
+  ══════════════════════════════════════════ -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:51</span><span>📶 🔋</span></div>
+
+      <!-- Top bar -->
+      <div class="topbar">
+        <div class="topbar-logo">📐 Toán Vui</div>
+        <div class="topbar-right">
+          <span class="badge">🔥 7</span>
+          <span class="badge badge-blue">⭐ 142</span>
+        </div>
+      </div>
+
+      <div class="content" style="overflow-y:auto;padding:10px 10px 8px;background:linear-gradient(180deg,#f0f4ff,#fff)">
+        <!-- Header -->
+        <div style="margin-bottom:8px">
+          <p style="font-size:14px;font-weight:900;color:#1e293b">🌌 Bảng xếp hạng tuần</p>
+          <p style="font-size:9px;color:#94a3b8;font-weight:600;margin-top:2px">Top bé luyện toán tuần này · Reset mỗi thứ Hai</p>
+        </div>
+
+        <!-- Scope tabs -->
+        <div style="display:flex;gap:5px;margin-bottom:8px">
+          <div style="flex:1;padding:5px 8px;border-radius:10px;background:#3b82f6;color:#fff;font-size:9px;font-weight:800;text-align:center">Cùng lớp 3</div>
+          <div style="flex:1;padding:5px 8px;border-radius:10px;background:#f1f5f9;color:#64748b;font-size:9px;font-weight:700;text-align:center">Toàn Hệ Mặt Trời</div>
+        </div>
+
+        <!-- My tier card -->
+        <div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border:1.5px solid #fcd34d;border-radius:14px;padding:8px 10px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <p style="font-size:8px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.05em">Hành tinh của bé</p>
+              <p style="font-size:13px;font-weight:900;color:#78350f;margin-top:1px">🌍 Trái Đất</p>
+            </div>
+            <div style="text-align:right">
+              <p style="font-size:8px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.05em">Tuần này</p>
+              <p style="font-size:13px;font-weight:900;color:#78350f;margin-top:1px">#4 · 32 câu ✓</p>
+            </div>
+          </div>
+          <div style="margin-top:6px">
+            <div style="height:5px;background:rgba(255,255,255,.7);border-radius:4px;overflow:hidden">
+              <div style="width:62%;height:100%;background:linear-gradient(90deg,#f59e0b,#d97706);border-radius:4px"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:8px;color:#92400e;font-weight:700;margin-top:2px">
+              <span>142 ⭐</span>
+              <span>→ 🔴 Sao Hỏa (350 ⭐)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboard list -->
+        <div style="background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
+          <!-- Row 1 — gold -->
+          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:linear-gradient(90deg,#fef3c7,#fff);border-bottom:1px solid #f1f5f9">
+            <span style="font-size:14px">🥇</span>
+            <div style="width:24px;height:24px;border-radius:50%;background:#fbbf24;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🦊</div>
+            <div style="flex:1;min-width:0">
+              <p style="font-size:10px;font-weight:800;color:#1e293b">Sao Bắc Cực</p>
+              <p style="font-size:8px;color:#94a3b8;font-weight:600">💎 Sao Hải Vương</p>
+            </div>
+            <div style="text-align:right">
+              <p style="font-size:10px;font-weight:900;color:#d97706">47 ✓</p>
+            </div>
+          </div>
+          <!-- Row 2 — silver -->
+          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:linear-gradient(90deg,#f1f5f9,#fff);border-bottom:1px solid #f1f5f9">
+            <span style="font-size:14px">🥈</span>
+            <div style="width:24px;height:24px;border-radius:50%;background:#94a3b8;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🐯</div>
+            <div style="flex:1;min-width:0">
+              <p style="font-size:10px;font-weight:800;color:#1e293b">Sư Tử Vàng</p>
+              <p style="font-size:8px;color:#94a3b8;font-weight:600">🌀 Sao Thiên Vương</p>
+            </div>
+            <div style="text-align:right">
+              <p style="font-size:10px;font-weight:900;color:#475569">41 ✓</p>
+            </div>
+          </div>
+          <!-- Row 3 — bronze -->
+          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:linear-gradient(90deg,#fed7aa,#fff);border-bottom:1px solid #f1f5f9">
+            <span style="font-size:14px">🥉</span>
+            <div style="width:24px;height:24px;border-radius:50%;background:#fb923c;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🐼</div>
+            <div style="flex:1;min-width:0">
+              <p style="font-size:10px;font-weight:800;color:#1e293b">Mèo Mun</p>
+              <p style="font-size:8px;color:#94a3b8;font-weight:600">🪐 Sao Thổ</p>
+            </div>
+            <div style="text-align:right">
+              <p style="font-size:10px;font-weight:900;color:#b45309">38 ✓</p>
+            </div>
+          </div>
+          <!-- Row 4 — me (highlighted) -->
+          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#dbeafe;border-bottom:1px solid #bfdbfe;border-left:3px solid #3b82f6">
+            <span style="font-size:11px;font-weight:900;color:#1d4ed8;width:14px;text-align:center">4</span>
+            <div style="width:24px;height:24px;border-radius:50%;background:#60a5fa;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🦁</div>
+            <div style="flex:1;min-width:0">
+              <p style="font-size:10px;font-weight:800;color:#1e3a8a">Bé Minh <span style="font-size:7px;background:#3b82f6;color:#fff;padding:1px 4px;border-radius:6px;margin-left:3px">BẠN</span></p>
+              <p style="font-size:8px;color:#1d4ed8;font-weight:600">🌍 Trái Đất</p>
+            </div>
+            <div style="text-align:right">
+              <p style="font-size:10px;font-weight:900;color:#1d4ed8">32 ✓</p>
+            </div>
+          </div>
+          <!-- Row 5 -->
+          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid #f1f5f9">
+            <span style="font-size:11px;font-weight:800;color:#64748b;width:14px;text-align:center">5</span>
+            <div style="width:24px;height:24px;border-radius:50%;background:#a78bfa;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🐰</div>
+            <div style="flex:1;min-width:0">
+              <p style="font-size:10px;font-weight:800;color:#1e293b">Khủng Long</p>
+              <p style="font-size:8px;color:#94a3b8;font-weight:600">🌍 Trái Đất</p>
+            </div>
+            <div style="text-align:right">
+              <p style="font-size:10px;font-weight:900;color:#475569">29 ✓</p>
+            </div>
+          </div>
+          <!-- Row 6 -->
+          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid #f1f5f9">
+            <span style="font-size:11px;font-weight:800;color:#64748b;width:14px;text-align:center">6</span>
+            <div style="width:24px;height:24px;border-radius:50%;background:#f472b6;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🐧</div>
+            <div style="flex:1;min-width:0">
+              <p style="font-size:10px;font-weight:800;color:#1e293b">Tia Chớp</p>
+              <p style="font-size:8px;color:#94a3b8;font-weight:600">🌟 Sao Kim</p>
+            </div>
+            <div style="text-align:right">
+              <p style="font-size:10px;font-weight:900;color:#475569">24 ✓</p>
+            </div>
+          </div>
+          <!-- Row 7 -->
+          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px">
+            <span style="font-size:11px;font-weight:800;color:#64748b;width:14px;text-align:center">7</span>
+            <div style="width:24px;height:24px;border-radius:50%;background:#34d399;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🐬</div>
+            <div style="flex:1;min-width:0">
+              <p style="font-size:10px;font-weight:800;color:#1e293b">Cá Voi Xanh</p>
+              <p style="font-size:8px;color:#94a3b8;font-weight:600">🌑 Sao Thủy</p>
+            </div>
+            <div style="text-align:right">
+              <p style="font-size:10px;font-weight:900;color:#475569">18 ✓</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom nav -->
+      <div class="bottom-nav">
+        <div class="nav-item"><span class="nav-icon">🏠</span>Trang chủ</div>
+        <div class="nav-item"><span class="nav-icon">📚</span>Bài học</div>
+        <div class="nav-item active"><span class="nav-icon">🌌</span>Xếp hạng</div>
+        <div class="nav-item"><span class="nav-icon">👤</span>Cá nhân</div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-label">6 — Bảng xếp hạng</div>
+  </div>
+
 </div><!-- /screens -->
 
-<p class="watermark">vui-hoc-toan.vercel.app · Toán Vui 3 · 2025</p>
+<div style="text-align:center;margin-top:48px">
+  <a href="https://vui-hoc-toan.vercel.app/register" class="cta-btn">
+    Đăng ký miễn phí cho bé <span class="arrow">→</span>
+  </a>
+  <p class="watermark" style="margin-top:14px">vui-hoc-toan.vercel.app · Toán Vui · 2026</p>
+</div>
 
 </body>
 </html>

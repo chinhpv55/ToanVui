@@ -31,23 +31,22 @@ const CHAPTER_COLORS: string[] = [
   "from-teal-400 to-teal-600",
 ];
 
-const POSITIONS = ["left", "center", "right", "center"] as const;
-type NodePosition = "left" | "center" | "right";
+const POSITIONS = ["left", "right"] as const;
+type NodePosition = "left" | "right";
 
 function getNodePosition(index: number): NodePosition {
   return POSITIONS[index % POSITIONS.length];
 }
 function positionClass(pos: NodePosition) {
-  if (pos === "left")  return "ml-4 mr-auto";
-  if (pos === "right") return "mr-4 ml-auto";
-  return "mx-auto";
+  return pos === "left" ? "ml-4 mr-auto" : "mr-4 ml-auto";
 }
 function ConnectorLine({ from, to }: { from: NodePosition; to: NodePosition }) {
   const cls =
-    from === "left"   && to === "center" ? "rotate-[15deg] translate-x-4"    :
-    from === "center" && to === "right"  ? "rotate-[15deg] translate-x-[-4px]" :
-    from === "right"  && to === "center" ? "rotate-[-15deg] translate-x-[-4px]":
-    from === "center" && to === "left"   ? "rotate-[-15deg] translate-x-4"    : "";
+    from === "left" && to === "right"
+      ? "rotate-[20deg]"
+      : from === "right" && to === "left"
+      ? "rotate-[-20deg]"
+      : "";
   return (
     <div className={`flex justify-center my-1 ${cls}`}>
       <div className="w-1 h-8 bg-gray-200 rounded-full" />

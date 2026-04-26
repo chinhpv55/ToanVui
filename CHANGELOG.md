@@ -5,6 +5,19 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.4.2] — 2026-04-26
+
+### Thêm
+- **Trial nới rộng**: 10 bài / 7 ngày → **20 bài / 14 ngày** (kho câu hỏi đã đủ, cho dùng thử rộng tay hơn).
+- **Trang preview.html**: hero "Cập nhật mới" + nút **Đăng ký miễn phí** (xanh nổi) trỏ về `/register`. Thêm Screen 6 — Bảng xếp hạng tuần. Update tiêu đề "lớp 3 → lớp 3-5", watermark 2025 → 2026, dòng "Sắp tới (sau 1/5)" giới thiệu module Toán tư duy logic.
+
+### Sửa
+- **Home learning path**: bỏ vị trí `center`, chỉ còn `left ↔ right` zigzag — khớp giao diện thực bé thấy. Connector lines tilt 20° cho cảm giác lượn.
+- **Bảng xếp hạng — đổi tên tier từ tên sao thiên hà (Procyon, Vega, Sirius...) sang tên hành tinh Hệ Mặt Trời** (Sao Thủy → Sao Hải Vương theo khoảng cách từ Mặt Trời). Phụ huynh & bé VN quen thuộc hơn (chương trình Tự nhiên Xã hội tiểu học).
+- Scope tab leaderboard: "Toàn trường" → "Toàn Hệ Mặt Trời" (vì user thuộc nhiều trường khác nhau).
+
+---
+
 ## [1.4.1] — 2026-04-26
 
 ### Thêm

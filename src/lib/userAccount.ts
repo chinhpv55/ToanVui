@@ -1,11 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 // Trial limits — adjust here if anh muốn nới/thắt:
-//   - 10 lần luyện-tập (= 10 phiên; mỗi phiên 10 câu hỏi). Backend chỉ tăng
+//   - 20 lần luyện-tập (= 20 phiên; mỗi phiên 10 câu hỏi). Backend chỉ tăng
 //     bộ đếm khi request có is_session_start=true; prefetch không tính.
-//   - HOẶC 7 ngày kể từ trial_started_at — cái nào đến trước.
-export const TRIAL_MAX_EXERCISES = 10;
-export const TRIAL_MAX_DAYS = 7;
+//   - HOẶC 14 ngày kể từ trial_started_at — cái nào đến trước.
+export const TRIAL_MAX_EXERCISES = 20;
+export const TRIAL_MAX_DAYS = 14;
 
 export const ADMIN_CONTACT = {
   zalo: "0949908210",
