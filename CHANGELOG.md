@@ -5,6 +5,14 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.3.4] — 2026-04-26
+
+### Debug
+- Thêm `api_version` stamp vào response `/api/admin/seed-bank` để dễ xác nhận deployment đã update.
+- Force `raw_preview` luôn xuất hiện (null nếu không có call), tránh JSON omit silent.
+
+---
+
 ## [1.3.3] — 2026-04-26
 
 ### Debug

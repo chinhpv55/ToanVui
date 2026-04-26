@@ -187,6 +187,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
+      api_version: "1.3.4",
       topic_id,
       topic_name: topic.topic_name,
       grade: topic.grade,
@@ -194,7 +195,7 @@ export async function POST(request: NextRequest) {
       total_ai_calls: totalCalls,
       results,
       truncated: totalCalls >= MAX_CALLS_PER_REQUEST,
-      raw_preview: rawPreview, // Debug: first 500 chars of first Claude response
+      raw_preview: rawPreview ?? null, // Debug: first 500 chars of first Claude response (null if no call)
     });
   } catch (err) {
     console.error("seed-bank error:", err);
