@@ -34,7 +34,11 @@ export const maxDuration = 60;
 const DIFFICULTIES: DifficultyLevel[] = ["easy", "medium", "hard"];
 const BATCH_SIZE = 5;             // exercises per Claude call
 const MAX_TOKENS_PER_BATCH = 600; // generous per-exercise budget for verbose Vietnamese hints
-const MAX_CALLS_PER_REQUEST = 20; // 6 calls/diff * 3 diffs + 2 dedup-retry buffer; ~60s budget
+// Per-difficulty parallel burst. 7 calls * 5 = 35 candidates → after Claude's
+// internal repetition (~10-20%) we expect 28-32 unique → enough to hit
+// target=30 in one shot most of the time. 7 parallel Haiku calls finish in
+// ~5-8s vs 30+ s sequential, so 3 difficulties fit comfortably under 60s.
+const BURST_SIZE = 7;
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
@@ -87,16 +91,14 @@ export async function POST(request: NextRequest) {
 
     let totalCalls = 0;
     const results: DifficultyResult[] = [];
-    // Debug: capture the first Claude raw response so the admin panel
-    // Network tab can see exactly what's coming back when the parser
-    // returns 0 exercises. We capture preview (start), length, and end
-    // separately because seeing both ends helps detect truncation.
+    // Debug: capture the first non-empty Claude raw response across all
+    // difficulties so the admin panel Network tab can see exactly what's
+    // coming back. Preview (start), length, end aid truncation diagnosis.
     let rawPreview: string | undefined;
     let rawLength: number | undefined;
     let rawEnd: string | undefined;
 
     for (const difficulty of DIFFICULTIES) {
-      // Count current items in bank for this (topic, difficulty)
       const { count: beforeCount } = await supabase
         .from("exercise_bank")
         .select("*", { count: "exact", head: true })
@@ -104,59 +106,70 @@ export async function POST(request: NextRequest) {
         .eq("difficulty", difficulty);
 
       const before = beforeCount ?? 0;
-      let parsed = 0;
-      let added = 0;
-      let aiCalls = 0;
 
-      while (
-        before + added < targetPerDiff &&
-        totalCalls < MAX_CALLS_PER_REQUEST
-      ) {
-        const userPrompt = buildBatchExercisePrompt(
-          topic.ai_prompt_template,
+      // Skip if already at/over target for this difficulty.
+      if (before >= targetPerDiff) {
+        results.push({
           difficulty,
-          "fill_blank", // hint only — Claude varies type per spec
-          BATCH_SIZE
-        );
+          before,
+          parsed: 0,
+          added: 0,
+          after: before,
+          ai_calls: 0,
+        });
+        continue;
+      }
 
-        let fresh: GeneratedExercise[] = [];
-        try {
-          const message = await withTimeout(
+      const userPrompt = buildBatchExercisePrompt(
+        topic.ai_prompt_template,
+        difficulty,
+        "fill_blank",
+        BATCH_SIZE
+      );
+      const systemPrompt = buildBatchSystemPrompt(topic.grade, topic.series);
+
+      // Fire BURST_SIZE Claude calls in parallel. Each rejection becomes null.
+      const calls: Promise<string | null>[] = Array.from(
+        { length: BURST_SIZE },
+        () =>
+          withTimeout(
             claude.messages.create({
               model,
               max_tokens: MAX_TOKENS_PER_BATCH * BATCH_SIZE,
-              system: buildBatchSystemPrompt(topic.grade, topic.series),
+              system: systemPrompt,
               messages: [{ role: "user", content: userPrompt }],
             }),
             25000
-          );
-          const text =
-            message.content[0].type === "text" ? message.content[0].text : "";
-          if (rawPreview === undefined) {
-            rawPreview = text.slice(0, 1500);
-            rawLength = text.length;
-            rawEnd = text.slice(-300);
-          }
-          fresh = parseExerciseArrayResponse(text);
-          if (fresh.length === 0) {
-            console.warn(
-              `seed-bank: 0 exercises parsed for ${topic.topic_name} (${difficulty}, model=${model}). Stopping difficulty.`
-            );
-          }
-        } catch (e) {
-          console.error(
-            "seed-bank Claude call failed:",
-            e instanceof Error ? e.message : String(e),
-            `topic=${topic.topic_name} diff=${difficulty} model=${model}`
-          );
-          break; // stop this difficulty on error, move to next
+          )
+            .then((m) => (m.content[0].type === "text" ? m.content[0].text : ""))
+            .catch((e) => {
+              console.error(
+                "seed-bank Claude call failed:",
+                e instanceof Error ? e.message : String(e),
+                `topic=${topic.topic_name} diff=${difficulty} model=${model}`
+              );
+              return null;
+            })
+      );
+      const texts = await Promise.all(calls);
+      totalCalls += BURST_SIZE;
+      const aiCalls = BURST_SIZE;
+
+      // Parse all responses, accumulate exercises, capture first valid raw.
+      const fresh: GeneratedExercise[] = [];
+      for (const text of texts) {
+        if (!text) continue;
+        if (rawPreview === undefined) {
+          rawPreview = text.slice(0, 1500);
+          rawLength = text.length;
+          rawEnd = text.slice(-300);
         }
-        aiCalls++;
-        totalCalls++;
+        fresh.push(...parseExerciseArrayResponse(text));
+      }
+      const parsed = fresh.length;
 
-        if (fresh.length === 0) break;
-        parsed += fresh.length;
-
+      let added = 0;
+      if (fresh.length > 0) {
         const rows = fresh.map((q) => ({
           topic_id,
           difficulty,
@@ -167,10 +180,6 @@ export async function POST(request: NextRequest) {
           hint: q.hint ?? null,
         }));
 
-        // Insert with onConflict to skip duplicates (unique idx by question_norm).
-        // Use .select() so we get back the actual inserted rows — Supabase's
-        // count with ignoreDuplicates is unreliable, but the returned array
-        // is authoritative.
         const { data: insertedRows, error: insertErr } = await supabase
           .from("exercise_bank")
           .upsert(rows, {
@@ -181,9 +190,9 @@ export async function POST(request: NextRequest) {
 
         if (insertErr) {
           console.error("seed-bank insert error:", insertErr);
-          break;
+        } else {
+          added = insertedRows?.length ?? 0;
         }
-        added += insertedRows?.length ?? 0;
       }
 
       const { count: afterCount } = await supabase
@@ -200,12 +209,10 @@ export async function POST(request: NextRequest) {
         after: afterCount ?? before + added,
         ai_calls: aiCalls,
       });
-
-      if (totalCalls >= MAX_CALLS_PER_REQUEST) break;
     }
 
     return NextResponse.json({
-      api_version: "1.3.9",
+      api_version: "1.3.10",
       parser_version: PARSER_VERSION,
       topic_id,
       topic_name: topic.topic_name,
@@ -213,7 +220,7 @@ export async function POST(request: NextRequest) {
       model,
       total_ai_calls: totalCalls,
       results,
-      truncated: totalCalls >= MAX_CALLS_PER_REQUEST,
+      truncated: false, // parallel burst is single-shot per difficulty; no truncation concept
       raw_preview: rawPreview ?? null,
       raw_length: rawLength ?? null,
       raw_end: rawEnd ?? null,

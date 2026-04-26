@@ -5,6 +5,16 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.3.10] — 2026-04-26
+
+### Fix / Tối ưu
+- **Seed-bank `FUNCTION_INVOCATION_TIMEOUT (504)`**: v1.3.9 nâng cap lên 20 calls **tuần tự** → 60-80s, vượt `maxDuration=60`. Giờ chạy **song song** mỗi difficulty: 7 Claude calls cùng lúc qua `Promise.all` → ~5-8s/difficulty × 3 = ~15-25s tổng, an toàn dưới 60s.
+- 7 calls × 5 câu = 35 candidates → sau dedup nội (~10-20% trùng) còn 28-32 unique → đủ đạt target=30 trong 1 lần seed cho phần lớn topic. Topic nào hụt vài câu, frontend filter `incomplete` sẽ tự retry ở lần "Seed all" sau.
+- Bỏ `MAX_CALLS_PER_REQUEST` và `truncated` (không còn ý nghĩa khi mỗi difficulty là single-shot).
+- Skip difficulty đã đủ kho (before ≥ target) — không gọi Claude phí.
+
+---
+
 ## [1.3.9] — 2026-04-26
 
 ### Tối ưu
