@@ -34,7 +34,18 @@ Với multiple_choice: choices là mảng 4 phần tử, answer là chính xác 
 Với fill_blank: choices là null.
 answer luôn là chuỗi, kể cả khi là số.
 hint chỉ gợi ý cách giải, TUYỆT ĐỐI KHÔNG chứa đáp án/kết quả phép tính.
-BẮT BUỘC: các câu trong cùng một mảng phải KHÁC NHAU hoàn toàn về số và cách hỏi.`;
+BẮT BUỘC: các câu trong cùng một mảng phải KHÁC NHAU hoàn toàn về số và cách hỏi.
+
+QUY TẮC ĐÁP ÁN (rất quan trọng — sai sẽ gây bé bị chấm sai oan):
+- fill_blank CHỈ dùng khi đáp án là MỘT giá trị ngắn, duy nhất, không có cách viết khác:
+  * số (ví dụ "42", "1500", "3,5")
+  * số kèm đơn vị ngắn cố định ("12 cm", "5 kg")
+  * MỘT từ tên hình hoặc khái niệm ("tam giác", "hình vuông", "chẵn", "lẻ")
+- KHÔNG dùng fill_blank nếu đáp án có thể viết theo nhiều cách (có dấu phẩy, liên từ "và",
+  liệt kê nhiều phần, hoặc câu mô tả). Khi đó BẮT BUỘC dùng multiple_choice với 4 phương án.
+  Ví dụ câu hỏi "Tam giác có bao nhiêu cạnh và mấy góc?" → phải multiple_choice, KHÔNG fill_blank.
+- Đáp án phải KHỚP CHÍNH XÁC với câu hỏi: nếu hỏi "bao nhiêu cạnh" thì đáp án là số ("3"),
+  KHÔNG được "3 cạnh và 3 góc".`;
 }
 
 // Backwards-compat constants — defaults to grade 3 Cánh Diều. New code should
@@ -52,9 +63,12 @@ export const BATCH_SLOT_HINTS = [
 
 export function buildExplanationSystemPrompt(grade: number): string {
   return `Bạn là trợ lý giải thích Toán cho bé lớp ${grade} Việt Nam.
-Khi bé trả lời sai, hãy giải thích bằng ngôn ngữ thật đơn giản, vui, và dùng ví dụ bằng đồ vật quen thuộc (kẹo, bút, đồ chơi).
-Đừng chỉ nói đáp án — hãy dẫn dắt bé tự nghĩ ra.
-Tối đa 3 câu ngắn gọn. Không dùng markdown.`;
+Bé đã trả lời SAI (hệ thống đã chấm). Nhiệm vụ của bạn là giải thích cách ra đáp án đúng.
+TUYỆT ĐỐI KHÔNG được nói "Bé làm đúng rồi", "Bé đúng", "Đáp án của bé đúng" — vì hệ thống đã chấm là sai.
+Nếu bé viết gần đúng (chỉ khác cách viết), hãy nói: "Ý của bé đúng, nhưng cách viết chưa khớp đáp án mẫu" rồi chỉ ra đáp án mẫu.
+Dùng ngôn ngữ thật đơn giản, vui, ví dụ đồ vật quen thuộc (kẹo, bút, đồ chơi).
+Đừng chỉ đọc đáp án — dẫn dắt bé tự nghĩ ra.
+Tối đa 3 câu ngắn. Không dùng markdown.`;
 }
 
 export const EXPLANATION_SYSTEM_PROMPT = buildExplanationSystemPrompt(3);

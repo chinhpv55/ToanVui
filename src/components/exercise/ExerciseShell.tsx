@@ -14,6 +14,8 @@ import ResultFeedback from "./ResultFeedback";
 import SessionSummary from "./SessionSummary";
 import { preloadSounds, playCorrect, playIncorrect, playStreak } from "@/lib/sound";
 import { addDailyStars } from "@/lib/dailyGoal";
+import { isAnswerCorrect } from "@/lib/answerCheck";
+import { submitProgress } from "@/lib/progressQueue";
 
 export default function ExerciseShell() {
   const router = useRouter();
@@ -65,9 +67,7 @@ export default function ExerciseShell() {
       setSubmitting(true);
       setLastAnswer(answer);
 
-      const isCorrect =
-        answer.trim().toLowerCase() ===
-        currentQuestion.answer.trim().toLowerCase();
+      const isCorrect = isAnswerCorrect(answer, currentQuestion.answer);
       setLastCorrect(isCorrect);
 
       // Play sound feedback
@@ -91,21 +91,14 @@ export default function ExerciseShell() {
         is_correct: isCorrect,
       });
 
-      // Call adaptive API with real student ID
-      if (student?.id) {
-        try {
-          await fetch("/api/adaptive", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              student_id: student.id,
-              topic_id: topicId,
-              is_correct: isCorrect,
-            }),
-          });
-        } catch {
-          // Non-critical, continue
-        }
+      // Persist to DB with retry + offline queue. Don't await — UI moves on
+      // immediately; submitProgress handles all error/queue logic internally.
+      if (student?.id && topicId) {
+        submitProgress({
+          student_id: student.id,
+          topic_id: topicId,
+          is_correct: isCorrect,
+        });
       }
 
       setShowResult(true);

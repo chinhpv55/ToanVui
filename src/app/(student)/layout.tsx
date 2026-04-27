@@ -8,6 +8,7 @@ import StreakBadge from "@/components/ui/StreakBadge";
 import VersionFooter from "@/components/ui/VersionFooter";
 import Link from "next/link";
 import { preloadSounds, setMuted } from "@/lib/sound";
+import { drainProgressQueue } from "@/lib/progressQueue";
 
 export default function StudentLayout({
   children,
@@ -23,6 +24,21 @@ export default function StudentLayout({
   // Preload sounds on mount
   useEffect(() => {
     preloadSounds();
+  }, []);
+
+  // Drain any progress writes that failed on a previous session (e.g. flaky
+  // network on the kid's device). Also retry whenever the tab regains focus
+  // or comes back online.
+  useEffect(() => {
+    drainProgressQueue();
+    const onFocus = () => drainProgressQueue();
+    const onOnline = () => drainProgressQueue();
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("online", onOnline);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("online", onOnline);
+    };
   }, []);
 
   function handleToggleSound() {

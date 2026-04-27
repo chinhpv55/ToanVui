@@ -21,16 +21,16 @@ export default function AssignPage() {
         .eq("parent_id", user.id)
         .single();
 
-      if (studentData) {
-        setStudent(studentData);
-        setAssignedId(studentData.assigned_topic_id);
-      }
+      if (!studentData) return;
+      setStudent(studentData);
+      setAssignedId(studentData.assigned_topic_id);
 
       const { data: topicsData } = await supabase
         .from("curriculum_topics")
         .select("*")
         .eq("subject", "toan")
-        .eq("grade", 3)
+        .eq("grade", studentData.grade)
+        .eq("series", studentData.series)
         .order("sort_order");
 
       if (topicsData) setTopics(topicsData);

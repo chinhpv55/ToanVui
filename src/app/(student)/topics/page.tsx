@@ -20,17 +20,16 @@ export default function TopicsPage() {
 
   useEffect(() => {
     async function load() {
+      if (!student) return;
       const { data: topicsData } = await supabase
         .from("curriculum_topics")
         .select("*")
         .eq("subject", "toan")
-        .eq("grade", 3)
-        .eq("series", "canh_dieu")
+        .eq("grade", student.grade)
+        .eq("series", student.series)
         .order("sort_order");
 
       if (topicsData) setTopics(topicsData);
-
-      if (!student) return;
       const { data: progressData } = await supabase
         .from("student_topic_progress")
         .select("*")

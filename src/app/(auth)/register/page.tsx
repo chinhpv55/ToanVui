@@ -5,6 +5,12 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
+import { SeriesType } from "@/types/database";
+
+const SERIES_OPTIONS: { value: SeriesType; label: string }[] = [
+  { value: "canh_dieu", label: "Cánh Diều" },
+  { value: "kntt",      label: "Kết nối tri thức" },
+];
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -12,6 +18,7 @@ export default function RegisterPage() {
   const [childName, setChildName] = useState("");
   const [nickname, setNickname] = useState("");
   const [grade, setGrade] = useState<number>(3);
+  const [series, setSeries] = useState<SeriesType>("canh_dieu");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -45,7 +52,7 @@ export default function RegisterPage() {
         name: childName,
         grade,
         username: nickname || null,
-        series: "canh_dieu",
+        series,
       });
       if (studentErr) {
         // Non-fatal — log and continue. Layout will show empty state.
@@ -118,6 +125,22 @@ export default function RegisterPage() {
                 <option key={g} value={g}>
                   Lớp {g}
                 </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Bộ sách
+            </label>
+            <select
+              value={series}
+              onChange={(e) => setSeries(e.target.value as SeriesType)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none text-lg bg-white"
+              required
+            >
+              {SERIES_OPTIONS.map((s) => (
+                <option key={s.value} value={s.value}>{s.label}</option>
               ))}
             </select>
           </div>

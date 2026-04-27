@@ -3,6 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { SeriesType } from "@/types/database";
+
+const SERIES_OPTIONS: { value: SeriesType; label: string }[] = [
+  { value: "canh_dieu", label: "Cánh Diều" },
+  { value: "kntt",      label: "Kết nối tri thức" },
+];
 
 // Profile-completion form for users who signed up via Google OAuth.
 // Email/password registration collects the child's profile inline,
@@ -13,6 +19,7 @@ export default function CompleteProfilePage() {
   const [childName, setChildName] = useState("");
   const [nickname, setNickname] = useState("");
   const [grade, setGrade] = useState<number>(3);
+  const [series, setSeries] = useState<SeriesType>("canh_dieu");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -59,7 +66,7 @@ export default function CompleteProfilePage() {
       name: childName,
       grade,
       username: nickname || null,
-      series: "canh_dieu",
+      series,
     });
 
     if (insertErr) {
@@ -135,6 +142,22 @@ export default function CompleteProfilePage() {
                 <option key={g} value={g}>
                   Lớp {g}
                 </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Bộ sách
+            </label>
+            <select
+              value={series}
+              onChange={(e) => setSeries(e.target.value as SeriesType)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none text-lg bg-white"
+              required
+            >
+              {SERIES_OPTIONS.map((s) => (
+                <option key={s.value} value={s.value}>{s.label}</option>
               ))}
             </select>
           </div>

@@ -8,7 +8,7 @@ import StarCounter from "@/components/ui/StarCounter";
 import StreakBadge from "@/components/ui/StreakBadge";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { GenderType } from "@/types/database";
+import { GenderType, SeriesType } from "@/types/database";
 
 // ─── Emoji avatar options ────────────────────────────────────────────────────
 const AVATARS = [
@@ -31,6 +31,13 @@ const GENDER_OPTIONS: { value: GenderType; label: string; icon: string }[] = [
   { value: "female", label: "Nữ",    icon: "👧" },
   { value: "other",  label: "Khác",  icon: "🧒" },
 ];
+
+const SERIES_OPTIONS: { value: SeriesType; label: string }[] = [
+  { value: "canh_dieu", label: "Cánh Diều" },
+  { value: "kntt",      label: "Kết nối tri thức" },
+];
+
+const GRADES = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 // ─── Avatar display helper ───────────────────────────────────────────────────
 function AvatarDisplay({
@@ -88,6 +95,8 @@ export default function ProfilePage() {
   const [school, setSchool] = useState(student?.school || "");
   const [avatarId, setAvatarId] = useState(student?.avatar_id || "cat");
   const [avatarUrl, setAvatarUrl] = useState(student?.avatar_url || "");
+  const [grade, setGrade] = useState<number>(student?.grade || 3);
+  const [series, setSeries] = useState<SeriesType>(student?.series || "canh_dieu");
 
   // Open edit mode — snapshot current values
   function openEdit() {
@@ -97,6 +106,8 @@ export default function ProfilePage() {
     setSchool(student?.school || "");
     setAvatarId(student?.avatar_id || "cat");
     setAvatarUrl(student?.avatar_url || "");
+    setGrade(student?.grade || 3);
+    setSeries(student?.series || "canh_dieu");
     setSaveMsg("");
     setEditing(true);
   }
@@ -135,6 +146,8 @@ export default function ProfilePage() {
       school: school.trim() || null,
       avatar_id: avatarId,
       avatar_url: avatarUrl || null,
+      grade,
+      series,
     };
     const { error } = await supabase
       .from("students")
@@ -190,7 +203,12 @@ export default function ProfilePage() {
         {student?.school && (
           <p className="text-sm text-gray-500 mt-0.5">🏫 {student.school}</p>
         )}
-        <p className="text-gray-400 text-sm">Lớp {student?.grade || 3}</p>
+        <p className="text-gray-400 text-sm">
+          Lớp {student?.grade || 3}
+          {student?.series && (
+            <> · {SERIES_OPTIONS.find((s) => s.value === student.series)?.label || student.series}</>
+          )}
+        </p>
 
         <div className="flex justify-center gap-4 mt-4">
           <StarCounter count={student?.total_stars || 0} size="lg" />
@@ -283,6 +301,41 @@ export default function ProfilePage() {
                 placeholder="Tên trường của bé..."
                 className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-gray-50 text-gray-800 font-semibold focus:outline-none focus:border-primary-400 focus:bg-white transition"
               />
+            </div>
+
+            {/* Grade */}
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                Lớp đang học
+              </label>
+              <select
+                value={grade}
+                onChange={(e) => setGrade(Number(e.target.value))}
+                className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-gray-50 text-gray-800 font-semibold focus:outline-none focus:border-primary-400 focus:bg-white transition"
+              >
+                {GRADES.map((g) => (
+                  <option key={g} value={g}>Lớp {g}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Series (book set) */}
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                Bộ sách
+              </label>
+              <select
+                value={series}
+                onChange={(e) => setSeries(e.target.value as SeriesType)}
+                className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-gray-50 text-gray-800 font-semibold focus:outline-none focus:border-primary-400 focus:bg-white transition"
+              >
+                {SERIES_OPTIONS.map((s) => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-400 mt-1">
+                Hiện hỗ trợ: Cánh Diều, Kết nối tri thức.
+              </p>
             </div>
 
             {/* Avatar picker */}

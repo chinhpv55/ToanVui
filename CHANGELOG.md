@@ -5,6 +5,21 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.5.0] — 2026-04-27
+
+### Sửa (quan trọng)
+- **Lớp + bộ sách giờ dùng đúng `student.grade`/`student.series`** — trước đó `home`, `topics`, `assign` hardcode `grade=3` & `series=canh_dieu` nên bé đăng ký lớp 4/5 mở app vẫn chỉ thấy nội dung lớp 3. Database đã có sẵn topic lớp 1-9 (Cánh Diều) + lớp 3-5 (KNTT) — giờ hiện đúng.
+- **So sánh đáp án fuzzy cho text tiếng Việt** ([`src/lib/answerCheck.ts`](src/lib/answerCheck.ts)) — trước chỉ `trim().toLowerCase()` nên bé viết "3 cạnh 3 góc" / "3 canh va 3 goc" / "ba cạnh và ba góc" / "tam giac" / "12cm" đều bị chấm sai oan dù đúng. Hàm mới: bỏ dấu (NFD), bỏ "và", chuyển số viết bằng chữ → digit, so sánh số bằng giá trị, token-set match (đảo thứ tự), tight match (bỏ space). Test 23/23 pass.
+- **Lưu progress đáng tin cậy với offline queue** ([`src/lib/progressQueue.ts`](src/lib/progressQueue.ts)) — `/api/adaptive` trước fail là im re, mạng yếu nhà bé thì sao/streak bay luôn. Giờ: queue vào localStorage trước khi gọi → retry 3 lần (0/600/1500ms backoff) → tự drain khi tab focus + khi mạng quay lại + khi mở app. Bé học offline xong vào lại app là tự đẩy hết lên DB.
+
+### Thêm
+- **Chọn lớp + bộ sách trong Profile** — phụ huynh có thể đổi sau khi đăng ký, không phải làm tài khoản mới.
+- **Dropdown bộ sách trong trang đăng ký** (email + Google OAuth complete) — chọn Cánh Diều / Kết nối tri thức ngay từ đầu (Chân trời sáng tạo bỏ vì chưa có ngân hàng đề; năm sau Bộ GD hợp nhất).
+- **Prompt sinh đề chặt hơn** — fill_blank chỉ cho đáp án ngắn không mơ hồ (số, 1 từ); câu mô tả/liệt kê BẮT BUỘC dùng multiple_choice. Tránh trường hợp AI sinh fill_blank cho câu "Tam giác có mấy cạnh và mấy góc?" rồi gắn đáp án mẫu "3 cạnh và 3 góc".
+- **Prompt giải thích cấm nói "bé đúng"** — khi hệ thống chấm sai mà AI giải thích "Bé làm đúng rồi đấy!" thì gây mâu thuẫn UX cho bé/phụ huynh. Nếu bé viết gần đúng, AI nói "Ý đúng nhưng cách viết chưa khớp đáp án mẫu".
+
+---
+
 ## [1.4.3] — 2026-04-26
 
 ### Cải thiện
