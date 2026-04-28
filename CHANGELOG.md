@@ -5,6 +5,13 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.5.1] — 2026-04-28
+
+### Sửa
+- **User đăng ký email/password không bị kẹt thiếu hồ sơ bé** ([`src/app/(student)/layout.tsx`](src/app/(student)/layout.tsx)) — flow đăng ký chỉ tạo `students` row khi `signUp` trả về session ngay; nếu Supabase bật email confirmation thì session = null → student row không được tạo → user vào `/profile` bấm Lưu hồ sơ bị silent fail (`if (!student) return`). Giờ layout phát hiện thiếu student row sẽ tự redirect sang `/register/complete` để hoàn tất hồ sơ bé.
+
+---
+
 ## [1.5.0] — 2026-04-27
 
 ### Sửa (quan trọng)

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useStudentStore } from "@/stores/studentStore";
 import StarCounter from "@/components/ui/StarCounter";
@@ -18,6 +19,7 @@ export default function StudentLayout({
   const { student, setStudent, isParentMode, toggleParentMode } =
     useStudentStore();
   const supabase = createClient();
+  const router = useRouter();
   const [soundOff, setSoundOff] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -63,11 +65,15 @@ export default function StudentLayout({
           .maybeSingle(),
       ]);
 
-      if (studentRow) setStudent(studentRow);
+      if (!studentRow) {
+        router.replace("/register/complete");
+        return;
+      }
+      setStudent(studentRow);
       if (account?.is_admin) setIsAdmin(true);
     }
     loadStudent();
-  }, [supabase, setStudent]);
+  }, [supabase, setStudent, router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white">
