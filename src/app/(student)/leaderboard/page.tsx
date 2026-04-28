@@ -63,7 +63,7 @@ export default function LeaderboardPage() {
           Cùng lớp {student?.grade ?? ""}
         </ScopeButton>
         <ScopeButton active={scope === "all"} onClick={() => setScope("all")}>
-          Toàn trường
+          Toàn hệ mặt trời
         </ScopeButton>
       </div>
 

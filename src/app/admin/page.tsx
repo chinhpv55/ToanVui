@@ -27,9 +27,15 @@ const PLAN_LABEL: Record<Plan, string> = {
   suspended: "🔴 Tạm khoá",
 };
 
+interface TodayStats {
+  today_signups: number;
+  today_active_learners: number;
+}
+
 export default function AdminUsersPage() {
   const supabase = useMemo(() => createClient(), []);
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [today, setToday] = useState<TodayStats | null>(null);
   const [filter, setFilter] = useState<"all" | Plan>("all");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -37,12 +43,22 @@ export default function AdminUsersPage() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase.rpc("admin_list_users");
-    if (error) {
-      console.error(error);
+    const [usersRes, todayRes] = await Promise.all([
+      supabase.rpc("admin_list_users"),
+      supabase.rpc("admin_today_stats"),
+    ]);
+    if (usersRes.error) {
+      console.error(usersRes.error);
       setUsers([]);
     } else {
-      setUsers((data as AdminUser[]) || []);
+      setUsers((usersRes.data as AdminUser[]) || []);
+    }
+    if (todayRes.error) {
+      console.error(todayRes.error);
+      setToday(null);
+    } else {
+      const row = (todayRes.data as TodayStats[] | null)?.[0] ?? null;
+      setToday(row);
     }
     setLoading(false);
   }
@@ -112,7 +128,21 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Stats cards */}
+      {/* Today stats */}
+      <div className="grid grid-cols-2 gap-3">
+        <StatCard
+          label="✨ Đăng ký mới hôm nay"
+          value={Number(today?.today_signups ?? 0)}
+          color="bg-primary-100"
+        />
+        <StatCard
+          label="📚 Bé học hôm nay"
+          value={Number(today?.today_active_learners ?? 0)}
+          color="bg-success-400/10"
+        />
+      </div>
+
+      {/* Plan stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Tổng số user" value={counts.total} color="bg-gray-100" />
         <StatCard label="🟢 Đã kích hoạt" value={counts.active} color="bg-success-400/10" />

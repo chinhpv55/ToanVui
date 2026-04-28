@@ -5,6 +5,22 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.5.2] — 2026-04-28
+
+### Sửa
+- **Đề "Đọc, viết số" không còn tautological** ([`src/lib/claude/prompts.ts`](src/lib/claude/prompts.ts)) — trước AI sinh đề kiểu "Cửa hàng bán 4567 chiếc bánh, hãy viết số đó bằng chữ số" với đáp án 4567 (trùng đề). Giờ system prompt phân biệt rõ "đọc số" (4567 → đọc thành "bốn nghìn năm trăm sáu mươi bảy", BẮT BUỘC multiple_choice) vs "viết số" (chữ Việt → ghi chữ số, dùng fill_blank), cấm answer trùng số đã có trong question. Bank cũ của topic CD3-C3-01 (Lớp 3 CD, "Các số có 4 chữ số") đã clear trong migration 010 để reseed sạch.
+
+### Thêm
+- **Thống kê "hôm nay" trên trang admin** ([`src/app/admin/page.tsx`](src/app/admin/page.tsx)) — hiện 2 ô: số bé đăng ký mới hôm nay + số bé đã vào học hôm nay (dựa trên `exercise_sessions`, timezone Asia/Ho_Chi_Minh). RPC mới: `admin_today_stats()` (migration 010).
+
+### Đổi
+- **Tab xếp hạng "Toàn trường" → "Toàn hệ mặt trời"** ([`src/app/(student)/leaderboard/page.tsx`](src/app/(student)/leaderboard/page.tsx)) — đồng bộ với theme thiên hà (galaxy tiers).
+
+### Triển khai
+- ⚠️ Cần chạy [`migration 010`](supabase/migrations/010_admin_stats_and_bank_fix.sql) trên Supabase Studio sau khi deploy.
+
+---
+
 ## [1.5.1] — 2026-04-28
 
 ### Sửa

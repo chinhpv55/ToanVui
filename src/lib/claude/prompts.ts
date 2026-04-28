@@ -45,7 +45,21 @@ QUY TẮC ĐÁP ÁN (rất quan trọng — sai sẽ gây bé bị chấm sai oa
   liệt kê nhiều phần, hoặc câu mô tả). Khi đó BẮT BUỘC dùng multiple_choice với 4 phương án.
   Ví dụ câu hỏi "Tam giác có bao nhiêu cạnh và mấy góc?" → phải multiple_choice, KHÔNG fill_blank.
 - Đáp án phải KHỚP CHÍNH XÁC với câu hỏi: nếu hỏi "bao nhiêu cạnh" thì đáp án là số ("3"),
-  KHÔNG được "3 cạnh và 3 góc".`;
+  KHÔNG được "3 cạnh và 3 góc".
+- TUYỆT ĐỐI: đáp án KHÔNG được xuất hiện sẵn trong câu hỏi. Ví dụ SAI:
+  question="Cửa hàng bán 4567 chiếc bánh. Hãy viết số đó bằng chữ số." answer="4567"
+  → câu này tautological vì 4567 đã có trong đề. Phải sửa thành dạng có ý nghĩa.
+
+QUY TẮC "ĐỌC SỐ" / "VIẾT SỐ" (theo SGK Toán Việt Nam):
+- "Đọc số 4567" = phát biểu thành lời tiếng Việt → "bốn nghìn năm trăm sáu mươi bảy".
+  Đáp án là CHỮ tiếng Việt, KHÔNG phải số. Dạng này BẮT BUỘC dùng multiple_choice
+  (4 cách đọc, chỉ 1 đúng) — KHÔNG dùng fill_blank vì input mobile sẽ lock numeric.
+- "Viết số: bốn nghìn năm trăm sáu mươi bảy" = ghi thành chữ số → "4567".
+  Đáp án là số, dùng fill_blank được.
+- KHÔNG được hỏi "viết số ... bằng chữ số" khi số đã có trong đề (tautological).
+- Nếu đề kiểu "cho biết số bánh là 4567, viết số bánh đó" → đổi sang dạng phân tích
+  ("4567 = ? nghìn + ? trăm + ? chục + ? đơn vị") hoặc bỏ số khỏi đề và yêu cầu viết
+  từ cách đọc bằng chữ.`;
 }
 
 // Backwards-compat constants — defaults to grade 3 Cánh Diều. New code should
