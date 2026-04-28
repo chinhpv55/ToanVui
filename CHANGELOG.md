@@ -5,6 +5,13 @@ Toán Vui — log các thay đổi giữa các phiên bản. Tuân theo [SemVer]
 
 ---
 
+## [1.5.3] — 2026-04-28
+
+### Thêm
+- **Banner nhắc đặt biệt danh ở trang chủ** ([`src/app/(student)/home/page.tsx`](src/app/(student)/home/page.tsx)) — hiện khi `student.username` empty/null. Click "Đặt ngay" → `/profile`. Click "Để sau" → ẩn 7 ngày qua localStorage (`nickname_banner_until`). Mục đích: kéo phụ huynh tự set nickname cho bé vì backfill từ `auth.users.raw_user_meta_data.nickname` không recover được user nào (đa phần đăng ký Google OAuth, không lưu metadata).
+
+---
+
 ## [1.5.2] — 2026-04-28
 
 ### Sửa

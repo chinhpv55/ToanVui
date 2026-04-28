@@ -110,6 +110,62 @@ function getMascot(streakDays: number, practicedToday: boolean, goalMet: boolean
   };
 }
 
+// ─────────────────────────────────────────────────────────
+// Nickname banner — nudges parents whose child has no username
+// to set one so the leaderboard shows a real nickname instead
+// of "Học sinh xxxx". Dismissable for 7 days via localStorage.
+// ─────────────────────────────────────────────────────────
+const NICKNAME_BANNER_KEY = "nickname_banner_until";
+
+function NicknameBanner({ username }: { username: string | null | undefined }) {
+  const router = useRouter();
+  const [hidden, setHidden] = useState(true);
+
+  useEffect(() => {
+    const until = Number(localStorage.getItem(NICKNAME_BANNER_KEY) || 0);
+    setHidden(until > Date.now());
+  }, []);
+
+  if (hidden) return null;
+  if (username && username.trim()) return null;
+
+  function handleLater() {
+    const until = Date.now() + 7 * 24 * 60 * 60 * 1000;
+    localStorage.setItem(NICKNAME_BANNER_KEY, String(until));
+    setHidden(true);
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-gradient-to-r from-primary-50 to-purple-50 border border-primary-200 rounded-2xl p-4 mb-5 flex items-start gap-3"
+    >
+      <span className="text-2xl flex-shrink-0">💫</span>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-bold text-gray-800">Đặt biệt danh cho bé</p>
+        <p className="text-xs text-gray-600 mt-0.5">
+          Để bé hiện đẹp hơn ở bảng xếp hạng tuần (thay vì &quot;Học sinh xxxx&quot;).
+        </p>
+        <div className="flex gap-2 mt-3">
+          <button
+            onClick={() => router.push("/profile")}
+            className="px-3 py-1.5 bg-primary-500 text-white text-xs font-bold rounded-lg hover:bg-primary-600 transition touch-target"
+          >
+            Đặt ngay
+          </button>
+          <button
+            onClick={handleLater}
+            className="px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 touch-target"
+          >
+            Để sau
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 function MascotCard({ streakDays, practicedToday, dailyStars }: {
   streakDays: number;
   practicedToday: boolean;
@@ -322,6 +378,10 @@ export default function HomePage() {
           dailyStars={dailyStars}
         />
       )}
+
+      {/* Nudge to set nickname if missing */}
+      <NicknameBanner username={student?.username} />
+
 
       {/* Overall progress bar */}
       <motion.div
